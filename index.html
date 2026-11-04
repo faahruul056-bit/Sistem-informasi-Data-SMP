@@ -1888,15 +1888,15 @@ function toggleMobileMenu() {
         const totalAlokasiK8 = u8Input + t8Input + (dopList.filter(i => i.kelas === '8' || i.kelas === 'Semua').reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
         const totalAlokasiK9 = u9Input + t9Input + (dopList.filter(i => i.kelas === '9' || i.kelas === 'Semua').reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
 
-        if (totalAlokasiK7 > actualK7) {
+        if (totalAlokasiK7 !== actualK7) {
           alert("VALIDASI JUMLAH SISWA KELAS VII GAGAL!\n\nTotal alokasi siswa Kelas VII adalah " + totalAlokasiK7 + " siswa, melebihi jumlah siswa riil di modul Peserta Didik (" + actualK7 + " siswa).");
           return;
         }
-        if (totalAlokasiK8 > actualK8) {
+        if (totalAlokasiK8 !== actualK8) {
           alert("VALIDASI JUMLAH SISWA KELAS VIII GAGAL!\n\nTotal alokasi siswa Kelas VIII adalah " + totalAlokasiK8 + " siswa, melebihi jumlah siswa riil di modul Peserta Didik (" + actualK8 + " siswa).");
           return;
         }
-        if (totalAlokasiK9 > actualK9) {
+        if (totalAlokasiK9 !== actualK9) {
           alert("VALIDASI JUMLAH SISWA KELAS IX GAGAL!\n\nTotal alokasi siswa Kelas IX adalah " + totalAlokasiK9 + " siswa, melebihi jumlah siswa riil di modul Peserta Didik (" + actualK9 + " siswa).");
           return;
         }
