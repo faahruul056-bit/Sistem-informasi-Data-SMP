@@ -1889,15 +1889,18 @@ function toggleMobileMenu() {
         const totalAlokasiK9 = u9Input + t9Input + (dopList.filter(i => i.kelas === '9' || i.kelas === 'Semua').reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
 
         if (totalAlokasiK7 !== actualK7) {
-          alert("VALIDASI JUMLAH SISWA KELAS VII GAGAL!\n\nTotal alokasi siswa Kelas VII adalah " + totalAlokasiK7 + " siswa, melebihi jumlah siswa riil di modul Peserta Didik (" + actualK7 + " siswa).");
+          const statusK7 = totalAlokasiK7 > actualK7 ? "MELEBIHI" : "KURANG DARI";
+          alert("VALIDASI JUMLAH SISWA KELAS VII GAGAL!\n\nTotal alokasi siswa Kelas VII adalah " + totalAlokasiK7 + " siswa, " + statusK7 + " jumlah siswa riil di modul Peserta Didik (" + actualK7 + " siswa).\n\nTotal alokasi pembayaran harus SAMA PERSIS.");
           return;
         }
         if (totalAlokasiK8 !== actualK8) {
-          alert("VALIDASI JUMLAH SISWA KELAS VIII GAGAL!\n\nTotal alokasi siswa Kelas VIII adalah " + totalAlokasiK8 + " siswa, melebihi jumlah siswa riil di modul Peserta Didik (" + actualK8 + " siswa).");
+          const statusK8 = totalAlokasiK8 > actualK8 ? "MELEBIHI" : "KURANG DARI";
+          alert("VALIDASI JUMLAH SISWA KELAS VIII GAGAL!\n\nTotal alokasi siswa Kelas VIII adalah " + totalAlokasiK8 + " siswa, " + statusK8 + " jumlah siswa riil di modul Peserta Didik (" + actualK8 + " siswa).\n\nTotal alokasi pembayaran harus SAMA PERSIS.");
           return;
         }
         if (totalAlokasiK9 !== actualK9) {
-          alert("VALIDASI JUMLAH SISWA KELAS IX GAGAL!\n\nTotal alokasi siswa Kelas IX adalah " + totalAlokasiK9 + " siswa, melebihi jumlah siswa riil di modul Peserta Didik (" + actualK9 + " siswa).");
+          const statusK9 = totalAlokasiK9 > actualK9 ? "MELEBIHI" : "KURANG DARI";
+          alert("VALIDASI JUMLAH SISWA KELAS IX GAGAL!\n\nTotal alokasi siswa Kelas IX adalah " + totalAlokasiK9 + " siswa, " + statusK9 + " jumlah siswa riil di modul Peserta Didik (" + actualK9 + " siswa).\n\nTotal alokasi pembayaran harus SAMA PERSIS.");
           return;
         }
 
