@@ -2359,7 +2359,8 @@ function updateSingleDocStatus(npsn, docKey, status) {
         return;
       }
 
-      let csv = "NPSN,Nama Sekolah,Lanud,Alamat Sekolah,Status Validasi,Total Siswa,Total Rombel,Total Guru,Total Tendik,Guru DPK PNS,Tendik DPK PNS,Kepala Sekolah,Akreditasi\n";
+      // 1. Ubah pemisah koma (,) menjadi titik koma (;) agar otomatis rapi di Excel format Indonesia
+      let csv = "NPSN;Nama Sekolah;Lanud;Alamat Sekolah;Status Validasi;Total Siswa;Total Rombel;Total Guru;Total Tendik;Guru DPK PNS;Tendik DPK PNS;Kepala Sekolah;Akreditasi\n";
 
       list.forEach(s => {
         const totalS = (s.siswa.k7L + s.siswa.k7P) + (s.siswa.k8L + s.siswa.k8P) + (s.siswa.k9L + s.siswa.k9P);
@@ -2367,7 +2368,11 @@ function updateSingleDocStatus(npsn, docKey, status) {
         const totalG = s.pendidik.L + s.pendidik.P;
         const totalT = s.tendik.L + s.tendik.P;
 
-        csv += '"' + s.npsn + '","' + s.nama + '","' + s.cabang + '","' + (s.alamatSekolah || '-') + '","' + s.statusValidation + '",' + totalS + ',' + totalR + ',' + totalG + ',' + totalT + ',' + (s.pendidik.dpkPns || 0) + ',' + (s.tendik.dpkPns || 0) + ',"' + (s.kepalaSekolah || '-') + '","' + getAkreditasiText(s.akreditasi) + '"\n';
+        // 2. Perbaikan status 'undefined' menjadi dinamis sesuai status revisi
+        const statusVal = s.hasDataRevision ? "Ada Pembaruan Data" : "Terdaftar";
+
+        // 3. Gunakan titik koma (;) sebagai delimiter
+        csv += '"' + s.npsn + '";"' + s.nama + '";"' + s.cabang + '";"' + (s.alamatSekolah || '-') + '";"' + statusVal + '";' + totalS + ';' + totalR + ';' + totalG + ';' + totalT + ';' + (s.pendidik.dpkPns || 0) + ';' + (s.tendik.dpkPns || 0) + ';"' + (s.kepalaSekolah || '-') + '";"' + getAkreditasiText(s.akreditasi) + '"\n';
       });
 
       const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
