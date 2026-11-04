@@ -320,6 +320,25 @@
         return;
       }
 
+      // --- MULAI PENAMBAHAN KODE VALIDASI ---
+      // Ambil data user yang sudah ada di sistem
+      let usersDB = JSON.parse(localStorage.getItem('sidsa_users_v10')) || [];
+
+      // 1. Cek apakah Nama Sekolah sudah pernah didaftarkan sebelumnya
+      const isSchoolExist = usersDB.some(u => u.nama === nama);
+      if (isSchoolExist) {
+        alert('Pendaftaran Gagal: Sekolah "' + nama + '" sudah terdaftar! Satu sekolah hanya bisa memiliki 1 akun.');
+        return;
+      }
+
+      // 2. Cek apakah NPSN (Username) sudah dipakai oleh sekolah lain
+      const isNpsnExist = usersDB.some(u => u.npsn === npsn || u.user === npsn);
+      if (isNpsnExist) {
+        alert('Pendaftaran Gagal: NPSN "' + npsn + '" sudah terdaftar di sistem!');
+        return;
+      }
+      // --- AKHIR PENAMBAHAN KODE VALIDASI ---
+
       const payload = {
         updatedModule: "akun",
         npsn: npsn,
@@ -337,7 +356,7 @@
         body: JSON.stringify(payload)
       })
       .then(() => {
-        let usersDB = JSON.parse(localStorage.getItem('sidsa_users_v10')) || [];
+        // Hapus let usersDB di sini karena sudah dipanggil di atas, cukup gunakan usersDB.push()
         usersDB.push(payload);
         localStorage.setItem('sidsa_users_v10', JSON.stringify(usersDB));
 
