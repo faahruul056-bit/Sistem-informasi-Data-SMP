@@ -2359,27 +2359,80 @@ function updateSingleDocStatus(npsn, docKey, status) {
         return;
       }
 
-      // 1. Ubah pemisah koma (,) menjadi titik koma (;) agar otomatis rapi di Excel format Indonesia
-      let csv = "NPSN;Nama Sekolah;Lanud;Alamat Sekolah;Status Validasi;Total Siswa;Total Rombel;Total Guru;Total Tendik;Guru DPK PNS;Tendik DPK PNS;Kepala Sekolah;Akreditasi\n";
+      let csv = "";
+      let fileName = "";
 
-      list.forEach(s => {
-        const totalS = (s.siswa.k7L + s.siswa.k7P) + (s.siswa.k8L + s.siswa.k8P) + (s.siswa.k9L + s.siswa.k9P);
-        const totalR = s.siswa.r7 + s.siswa.r8 + s.siswa.r9;
-        const totalG = s.pendidik.L + s.pendidik.P;
-        const totalT = s.tendik.L + s.tendik.P;
+      // Cek user lagi buka menu/modul apa
+      if (activeTab === 'identitas') {
+        fileName = "Rekap_Identitas_Legalitas_TA_" + ta.replace('-', '_');
+        csv = "NPSN;Nama Sekolah;Lanud;Alamat Sekolah;Kepala Sekolah;Akreditasi;Tahun Akreditasi;SK Pendirian;SK Izin Operasional\n";
+        
+        list.forEach(s => {
+          const leg = s.legalitas || {};
+          csv += `"${s.npsn}";"${s.nama}";"${s.cabang}";"${s.alamatSekolah || '-'}";"${s.kepalaSekolah || '-'}";"${getAkreditasiText(s.akreditasi)}";"${s.tahunAkreditasi || '-'}";"${leg.skPendirian || '-'}";"${leg.skIzin || '-'}"\n`;
+        });
+        
+      } else if (activeTab === 'peserta_didik') {
+        fileName = "Rekap_Siswa_Rombel_TA_" + ta.replace('-', '_');
+        csv = "NPSN;Nama Sekolah;Lanud;Siswa Kls 7;Siswa Kls 8;Siswa Kls 9;Total Siswa;Rombel Kls 7;Rombel Kls 8;Rombel Kls 9;Total Rombel\n";
+        
+        list.forEach(s => {
+          const k7 = (s.siswa.k7L + s.siswa.k7P) || 0;
+          const k8 = (s.siswa.k8L + s.siswa.k8P) || 0;
+          const k9 = (s.siswa.k9L + s.siswa.k9P) || 0;
+          const totalS = k7 + k8 + k9;
+          const totalR = (s.siswa.r7 + s.siswa.r8 + s.siswa.r9) || 0;
+          
+          csv += `"${s.npsn}";"${s.nama}";"${s.cabang}";${k7};${k8};${k9};${totalS};${s.siswa.r7};${s.siswa.r8};${s.siswa.r9};${totalR}\n`;
+        });
+        
+      } else if (activeTab === 'pendidik_tendik') {
+        fileName = "Rekap_SDM_TA_" + ta.replace('-', '_');
+        csv = "NPSN;Nama Sekolah;Lanud;Guru Laki;Guru Pr;Total Guru;GTY;CGTY;Guru DPK PNS;Tendik Laki;Tendik Pr;Total Tendik;KTY;CKTY;Tendik DPK PNS\n";
+        
+        list.forEach(s => {
+          const totalG = (s.pendidik.L + s.pendidik.P) || 0;
+          const totalT = (s.tendik.L + s.tendik.P) || 0;
+          
+          csv += `"${s.npsn}";"${s.nama}";"${s.cabang}";${s.pendidik.L};${s.pendidik.P};${totalG};${s.pendidik.gty || 0};${s.pendidik.cgty || 0};${s.pendidik.dpkPns || 0};${s.tendik.L};${s.tendik.P};${totalT};${s.tendik.kty || 0};${s.tendik.ckty || 0};${s.tendik.dpkPns || 0}\n`;
+        });
+        
+      } else if (activeTab === 'keuangan') {
+        fileName = "Rekap_Keuangan_TA_" + ta.replace('-', '_');
+        csv = "NPSN;Nama Sekolah;Lanud;Total Siswa Umum;Total Siswa TNI;DOP Umum/Bulan;DOP TNI/Bulan;DSP Gel 1;DSP Gel 2;DSP Gel 3;RPSS Total\n";
+        
+        list.forEach(s => {
+          const keu = s.keuangan || {};
+          const sumUmum = (keu.siswaUmum7||0) + (keu.siswaUmum8||0) + (keu.siswaUmum9||0);
+          const sumTni = (keu.siswaTniau7||0) + (keu.siswaTniau8||0) + (keu.siswaTniau9||0);
+          const dopUmumBln = ((keu.siswaUmum7||0) * (keu.dopUmum7||0)) + ((keu.siswaUmum8||0) * (keu.dopUmum8||0)) + ((keu.siswaUmum9||0) * (keu.dopUmum9||0));
+          const dopTniBln = ((keu.siswaTniau7||0) * (keu.dopTniau7||0)) + ((keu.siswaTniau8||0) * (keu.dopTniau8||0)) + ((keu.siswaTniau9||0) * (keu.dopTniau9||0));
+          const totalRPSS = (keu.rpssSumber01||0) + (keu.rpssSumber02||0) + (keu.rpssSumber03||0);
+          
+          csv += `"${s.npsn}";"${s.nama}";"${s.cabang}";${sumUmum};${sumTni};${dopUmumBln};${dopTniBln};${(keu.dspGel1||0)*(keu.dspSiswa1||0)};${(keu.dspGel2||0)*(keu.dspSiswa2||0)};${(keu.dspGel3||0)*(keu.dspSiswa3||0)};${totalRPSS}\n`;
+        });
+        
+      } else {
+        // Mode Default untuk Dashboard, Laporan, Validasi, Analisis
+        fileName = "Rekap_Global_SiData_TA_" + ta.replace('-', '_');
+        csv = "NPSN;Nama Sekolah;Lanud;Alamat Sekolah;Status Validasi;Total Siswa;Total Rombel;Total Guru;Total Tendik;Kepala Sekolah;Akreditasi\n";
+        
+        list.forEach(s => {
+          const totalS = (s.siswa.k7L + s.siswa.k7P) + (s.siswa.k8L + s.siswa.k8P) + (s.siswa.k9L + s.siswa.k9P);
+          const totalR = s.siswa.r7 + s.siswa.r8 + s.siswa.r9;
+          const totalG = s.pendidik.L + s.pendidik.P;
+          const totalT = s.tendik.L + s.tendik.P;
+          const statusVal = s.hasDataRevision ? "Ada Pembaruan Data" : "Terdaftar";
 
-        // 2. Perbaikan status 'undefined' menjadi dinamis sesuai status revisi
-        const statusVal = s.hasDataRevision ? "Ada Pembaruan Data" : "Terdaftar";
-
-        // 3. Gunakan titik koma (;) sebagai delimiter
-        csv += '"' + s.npsn + '";"' + s.nama + '";"' + s.cabang + '";"' + (s.alamatSekolah || '-') + '";"' + statusVal + '";' + totalS + ';' + totalR + ';' + totalG + ';' + totalT + ';' + (s.pendidik.dpkPns || 0) + ';' + (s.tendik.dpkPns || 0) + ';"' + (s.kepalaSekolah || '-') + '";"' + getAkreditasiText(s.akreditasi) + '"\n';
-      });
+          csv += `"${s.npsn}";"${s.nama}";"${s.cabang}";"${s.alamatSekolah || '-'}";"${statusVal}";${totalS};${totalR};${totalG};${totalT};"${s.kepalaSekolah || '-'}";"${getAkreditasiText(s.akreditasi)}"\n`;
+        });
+      }
 
       const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
       link.setAttribute("href", url);
-      link.setAttribute("download", "Rekap_Data_SiData_TA_" + ta.replace('-', '_') + ".csv");
+      link.setAttribute("download", fileName + ".csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
