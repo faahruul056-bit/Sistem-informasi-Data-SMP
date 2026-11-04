@@ -1051,21 +1051,8 @@ function toggleMobileMenu() {
       if (fileUrlOrName.startsWith("http://") || fileUrlOrName.startsWith("https://")) {
         window.open(fileUrlOrName, '_blank');
       } else {
-        // Fallback jika masih berupa nama file teks biasa
-        const element = document.createElement('a');
-        const ext = fileUrlOrName.split('.').pop().toLowerCase();
-        let mimeType = 'text/plain;charset=utf-8';
-        if (ext === 'pdf') mimeType = 'application/pdf';
-        else if (ext === 'xlsx' || ext === 'xls') mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        else if (ext === 'docx' || ext === 'doc') mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-        const fileContent = "SiDataSMPAngkasa SYSTEM GENERATED SECURE DOCUMENT BACKUP FOR: " + fileUrlOrName;
-        const file = new Blob([fileContent], { type: mimeType });
-        element.href = URL.createObjectURL(file);
-        element.download = fileUrlOrName;
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+        // Fallback jika masih berupa nama file teks biasa (LINK DRIVE BELUM TURUN DARI SERVER)
+        alert("File sedang diproses dan disinkronkan ke server Google Drive Pusat.\n\nHarap tunggu beberapa saat, lalu muat ulang (Refresh) halaman ini untuk melihat/mengunduh file tersebut.");
       }
     }
     function renderPage(page) {
