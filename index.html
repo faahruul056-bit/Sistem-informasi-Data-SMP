@@ -2422,17 +2422,6 @@ function renderSpmbModule(list) {
       const taList = Object.keys(db).sort().reverse();
       const activeTA = document.getElementById('filterTA')?.value || taList[0]; 
 
-      // LOGIKA OTOMATIS: Hitung Tahun Ajaran berikutnya (misal: 2026-2027 -> 2027-2028)
-      let nextTA = "Tahun Ajaran Berikutnya";
-      if (activeTA && activeTA.includes("-")) {
-        const parts = activeTA.split("-");
-        const startYear = parseInt(parts[0]);
-        const endYear = parseInt(parts[1]);
-        if (!isNaN(startYear) && !isNaN(endYear)) {
-          nextTA = `${startYear + 1}-${endYear + 1}`;
-        }
-      }
-
       const bulanArray = [
         {k:'jan', n:'Januari'}, {k:'feb', n:'Februari'}, {k:'mar', n:'Maret'}, {k:'apr', n:'April'},
         {k:'mei', n:'Mei'}, {k:'jun', n:'Juni'}, {k:'jul', n:'Juli'}, {k:'ags', n:'Agustus'},
@@ -2463,22 +2452,11 @@ function renderSpmbModule(list) {
           const pct = target > 0 ? Math.min(Math.round((totDaftarUlang / target) * 100), 100) : 0;
           const sisaTarget = Math.max(0, target - totDaftarUlang);
 
-          // Peringatan otomatis jika target belum diatur atau di bawah standar
+          // Peringatan otomatis jika target belum diatur atau di bawah standar (alert ini tetep penting buat validasi)
           let warningHtml = '';
           if (isSekolah && target < k9Total) {
             warningHtml = '<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-[11px] flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i><div><strong>Peringatan Target:</strong> Target penerimaan belum memenuhi standar minimal (Total Lulusan Kelas 9 tahun ini: <strong>' + k9Total + ' Siswa</strong>). Harap perbarui target di bawah.</div></div>';
           }
-
-          // BANNER DINAMIS TAHUN AJARAN (Selalu memproyeksikan tahun depannya)
-          let taBannerHtml = `
-            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-[11px] flex gap-2 items-start shadow-sm">
-              <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
-              <div>
-                <strong class="font-bold block text-xs mb-0.5">Info Progres SPMB: Tahun Ajaran ${nextTA}</strong> 
-                Data pendaftaran di bawah ini adalah progres penerimaan siswa baru untuk <strong>Tahun Ajaran ${nextTA}</strong> guna menggantikan target lulusan Kelas 9 pada tahun berjalan (${activeTA}).
-              </div>
-            </div>
-          `;
 
           // Label Last Updated SPMB
           let updateTag = s.lastUpdateSpmb ? 
@@ -2514,7 +2492,6 @@ function renderSpmbModule(list) {
                 '<div class="text-[10px] text-amber-600 mt-1 font-semibold">Kekurangan: ' + sisaTarget + ' Siswa</div>' +
               '</div>' +
             '</div>' +
-            taBannerHtml +
             actionContent + 
           '</div>';
         });
@@ -2522,7 +2499,6 @@ function renderSpmbModule(list) {
 
       return '<div class="bg-slate-50/50 rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4"><div class="border-b pb-3"><h3 class="font-bold text-slate-800 text-base flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-brand-orange"></i> Progres SPMB & Pencapaian Target</h3><p class="text-xs text-slate-500">Pantau progres pendaftar, siswa diterima, dan daftar ulang setiap bulannya (Jan-Des). Target tidak boleh lebih kecil dari jumlah lulusan kelas 9.</p></div>' + itemsHtml + '</div>';
     }
-
     function saveSpmbData(e, npsn, minTarget) {
       e.preventDefault();
       const taList = Object.keys(db).sort().reverse();
