@@ -1361,8 +1361,9 @@ function toggleMobileMenu() {
             legalitas: school.legalitas
           };
 
-          // Munculkan Loading Screen dengan teks khusus
+          // Munculkan Loading Screen
           const loadingOverlay = document.getElementById('loadingOverlay');
+          loadingOverlay.querySelector('h3').className = "font-bold text-slate-800 text-sm";
           loadingOverlay.querySelector('h3').innerText = "Mengunggah Berkas...";
           loadingOverlay.querySelector('p').innerText = "Menyimpan ke sistem cloud. Harap tunggu...";
           loadingOverlay.classList.remove('hidden');
@@ -1378,8 +1379,13 @@ function toggleMobileMenu() {
             loadingOverlay.querySelector('p').innerText = "Memperbarui tampilan dokumen...";
             
             setTimeout(() => {
-              window.location.reload();
-            }, 1500); // Refresh otomatis tanpa klik apapun
+              loadingOverlay.classList.add('hidden'); // Sembunyikan animasi loading
+              
+              // Refresh komponen UI (Tabel & Sidebar) secara dinamis tanpa reload browser
+              saveDB();
+              renderSidebar();
+              renderPage('identitas');
+            }, 1500); 
           }).catch(err => {
             console.error("Gagal upload file:", err);
             loadingOverlay.classList.add('hidden');
@@ -2047,8 +2053,9 @@ function toggleMobileMenu() {
             notes: ""
           };
 
-          // Munculkan Loading Screen dengan teks khusus
+          // Munculkan Loading Screen
           const loadingOverlay = document.getElementById('loadingOverlay');
+          loadingOverlay.querySelector('h3').className = "font-bold text-slate-800 text-sm";
           loadingOverlay.querySelector('h3').innerText = "Mengunggah Dokumen...";
           loadingOverlay.querySelector('p').innerText = "Menyimpan laporan ke cloud. Harap tunggu...";
           loadingOverlay.classList.remove('hidden');
@@ -2061,10 +2068,15 @@ function toggleMobileMenu() {
           }).then(() => {
             loadingOverlay.querySelector('h3').className = "font-bold text-emerald-600 text-sm";
             loadingOverlay.querySelector('h3').innerText = "Dokumen Tersimpan!";
-            loadingOverlay.querySelector('p').innerText = "Memuat ulang untuk menampilkan file terbaru...";
+            loadingOverlay.querySelector('p').innerText = "Memperbarui tampilan dokumen...";
             
             setTimeout(() => {
-              window.location.reload();
+              loadingOverlay.classList.add('hidden'); // Sembunyikan animasi loading
+              
+              // Refresh komponen UI (Tabel & Sidebar) secara dinamis tanpa reload browser
+              saveDB();
+              renderSidebar();
+              renderPage('dokumen_tambahan');
             }, 1500);
           }).catch(err => {
             console.error("Gagal upload file:", err);
