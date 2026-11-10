@@ -1367,7 +1367,7 @@ function toggleMobileMenu() {
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
           }).then(() => {
-            alert('Berkas "' + fileName + '" Berhasil Diunggah & Menunggu Validasi Pusat!');
+            alert('Berkas "' + fileName + '" Berhasil Diunggah & Menunggu Validasi Pusat!\n\nCatatan: Sistem membutuhkan waktu beberapa detik untuk menyimpan file. Silakan refresh (muat ulang) halaman ini untuk melihat berkas yang baru saja diunggah.');
           }).catch(err => {
             console.error("Gagal upload file:", err);
           });
@@ -2039,7 +2039,7 @@ function toggleMobileMenu() {
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
           }).then(() => {
-            alert('Berkas "' + fileName + '" berhasil diunggah dan disimpan ke folder Drive ' + katFolder + '!');
+            alert('Berkas "' + fileName + '" berhasil diunggah dan disimpan ke folder Drive ' + katFolder + '!\n\nCatatan: Sistem membutuhkan waktu beberapa detik untuk memproses data. Silakan refresh (muat ulang) halaman ini untuk melihat/mengunduh dokumen tersebut.');
           });
 
           saveDB();
