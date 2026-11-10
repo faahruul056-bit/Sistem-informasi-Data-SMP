@@ -365,6 +365,7 @@
         lastUpdatePendidik: "",
         lastUpdateKeuangan: "",
         lastUpdateDokumen: "",
+        lastUpdateSpmb: "",
         hasDataRevision: false,
         lastUpdatedModule: "",
         legalitas: { 
@@ -629,16 +630,16 @@ function toggleMobileMenu() {
                   incomingDb[ta].forEach(incSchool => {
                     const locSchool = localDb[ta].find(s => s.npsn === incSchool.npsn);
                     if (locSchool) {
-                      // Salin riwayat waktu lokal ke data baru dari server
+                      // Salin riwayat waktu lokal ke data baru dari server (Update Logika Merge)
                       incSchool.lastUpdate = incSchool.timestamp || locSchool.lastUpdate || "-";
-                      incSchool.lastUpdateIdentitas = locSchool.lastUpdateIdentitas || "";
-                      incSchool.lastUpdateSiswa = locSchool.lastUpdateSiswa || "";
-                      incSchool.lastUpdatePendidik = locSchool.lastUpdatePendidik || "";
-                      incSchool.lastUpdateKeuangan = locSchool.lastUpdateKeuangan || "";
-                      incSchool.lastUpdateDokumen = locSchool.lastUpdateDokumen || "";
-                      incSchool.lastUpdateSpmb = locSchool.lastUpdateSpmb || "";
-                      incSchool.hasDataRevision = locSchool.hasDataRevision || false;
-                      incSchool.lastUpdatedModule = locSchool.lastUpdatedModule || "";
+                      incSchool.lastUpdateIdentitas = incSchool.lastUpdateIdentitas || locSchool.lastUpdateIdentitas || "";
+                      incSchool.lastUpdateSiswa = incSchool.lastUpdateSiswa || locSchool.lastUpdateSiswa || "";
+                      incSchool.lastUpdatePendidik = incSchool.lastUpdatePendidik || locSchool.lastUpdatePendidik || "";
+                      incSchool.lastUpdateKeuangan = incSchool.lastUpdateKeuangan || locSchool.lastUpdateKeuangan || "";
+                      incSchool.lastUpdateDokumen = incSchool.lastUpdateDokumen || locSchool.lastUpdateDokumen || "";
+                      incSchool.lastUpdateSpmb = incSchool.lastUpdateSpmb || locSchool.lastUpdateSpmb || "";
+                      incSchool.hasDataRevision = incSchool.hasDataRevision !== undefined ? incSchool.hasDataRevision : (locSchool.hasDataRevision || false);
+                      incSchool.lastUpdatedModule = incSchool.lastUpdatedModule || locSchool.lastUpdatedModule || "";
                     }
                   });
                 }
