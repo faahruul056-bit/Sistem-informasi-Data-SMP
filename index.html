@@ -291,6 +291,9 @@
       if (moduleKey === 'pendidik') school.lastUpdatePendidik = timeStr;
       if (moduleKey === 'keuangan') school.lastUpdateKeuangan = timeStr;
       if (moduleKey === 'dokumen') school.lastUpdateDokumen = timeStr;
+      
+      // TAMBAHKAN BARIS INI UNTUK SPMB:
+      if (moduleKey === 'spmb') school.lastUpdateSpmb = timeStr;
 
       // Kunci perbaikannya di sini:
       if (!skipSync) {
@@ -633,6 +636,7 @@ function toggleMobileMenu() {
                       incSchool.lastUpdatePendidik = locSchool.lastUpdatePendidik || "";
                       incSchool.lastUpdateKeuangan = locSchool.lastUpdateKeuangan || "";
                       incSchool.lastUpdateDokumen = locSchool.lastUpdateDokumen || "";
+                      incSchool.lastUpdateSpmb = locSchool.lastUpdateSpmb || "";
                       incSchool.hasDataRevision = locSchool.hasDataRevision || false;
                       incSchool.lastUpdatedModule = locSchool.lastUpdatedModule || "";
                     }
@@ -2414,6 +2418,11 @@ function updateSingleDocStatus(npsn, docKey, status) {
 function renderSpmbModule(list) {
       const { role } = parseRoleInfo();
       const isSekolah = role === 'SEKOLAH';
+      
+      // Ambil Tahun Ajaran yang sedang aktif di dropdown atas
+      const taList = Object.keys(db).sort().reverse();
+      const activeTA = document.getElementById('filterTA')?.value || taList[0]; 
+
       const bulanArray = [
         {k:'jan', n:'Januari'}, {k:'feb', n:'Februari'}, {k:'mar', n:'Maret'}, {k:'apr', n:'April'},
         {k:'mei', n:'Mei'}, {k:'jun', n:'Juni'}, {k:'jul', n:'Juli'}, {k:'ags', n:'Agustus'},
@@ -2443,11 +2452,27 @@ function renderSpmbModule(list) {
           const pct = target > 0 ? Math.min(Math.round((totDaftarUlang / target) * 100), 100) : 0;
           const sisaTarget = Math.max(0, target - totDaftarUlang);
 
-          // Peringatan otomatis jika target belum diatur atau di bawah standar
+          // Peringatan jika target belum diatur
           let warningHtml = '';
           if (isSekolah && target < k9Total) {
             warningHtml = '<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-[11px] flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i><div><strong>Peringatan Target:</strong> Target penerimaan belum memenuhi standar minimal (Total Kelas 9 saat ini: <strong>' + k9Total + ' Siswa</strong>). Harap perbarui target di bawah.</div></div>';
           }
+
+          // Banner Info Tahun Ajaran (Biar Sekolah gak bingung)
+          let taBannerHtml = `
+            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-[11px] flex gap-2 items-start shadow-sm">
+              <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+              <div>
+                <strong class="font-bold block text-xs mb-0.5">Tahun Ajaran SPMB Aktif: ${activeTA}</strong> 
+                Data progres pendaftaran di bawah ini tersimpan khusus untuk <strong>Tahun Ajaran ${activeTA}</strong>. ${isSekolah ? 'Jika pendaftaran ini untuk tahun ajaran berikutnya, pastikan Anda mengubah pilihan Tahun Ajaran di bagian atas layar terlebih dahulu.' : ''}
+              </div>
+            </div>
+          `;
+
+          // Label Last Updated SPMB
+          let updateTag = s.lastUpdateSpmb ? 
+            '<span class="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full border border-emerald-200">Diperbarui: ' + s.lastUpdateSpmb + '</span>' : 
+            '<span class="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-1 rounded-full border border-slate-200">Belum Ada Perubahan</span>';
 
           let formGrid = '';
           bulanArray.forEach(b => {
@@ -2466,7 +2491,21 @@ function renderSpmbModule(list) {
             actionContent = '<div class="flex flex-wrap items-center gap-4 mb-4"><div class="bg-blue-50 px-4 py-2 rounded-xl border border-blue-200"><span class="block text-[10px] text-slate-500">Target Siswa Baru</span><strong class="text-base text-brand-blue">' + target + ' Siswa</strong></div><div class="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200"><span class="block text-[10px] text-slate-500">Total Daftar Ulang (Riil)</span><strong class="text-base text-emerald-700">' + totDaftarUlang + ' Siswa</strong></div></div><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">' + formGrid + '</div>';
           }
 
-          itemsHtml += '<div class="border border-slate-200/80 rounded-2xl p-5 bg-white shadow-sm space-y-4 mb-4"><div class="flex justify-between items-end border-b pb-3"><div><h4 class="font-bold text-brand-blue text-base">' + s.nama + '</h4><p class="text-xs text-slate-500">Lulusan Kelas 9: ' + k9Total + ' Siswa</p></div><div class="text-right"><div class="text-xs font-bold text-slate-700 mb-1">Capaian: ' + totDaftarUlang + ' / ' + target + ' (' + pct + '%)</div><div class="w-32 h-2.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width: ' + pct + '%"></div></div><div class="text-[10px] text-amber-600 mt-1 font-semibold">Kekurangan: ' + sisaTarget + ' Siswa</div></div></div>' + actionContent + '</div>';
+          itemsHtml += '<div class="border border-slate-200/80 rounded-2xl p-5 bg-white shadow-sm space-y-4 mb-4">' +
+            '<div class="flex justify-between items-end border-b pb-3">' +
+              '<div>' +
+                '<div class="flex items-center gap-2 mb-0.5"><h4 class="font-bold text-brand-blue text-base">' + s.nama + '</h4>' + updateTag + '</div>' +
+                '<p class="text-xs text-slate-500">Lulusan Kelas 9: ' + k9Total + ' Siswa</p>' +
+              '</div>' +
+              '<div class="text-right">' +
+                '<div class="text-xs font-bold text-slate-700 mb-1">Capaian: ' + totDaftarUlang + ' / ' + target + ' (' + pct + '%)</div>' +
+                '<div class="w-32 h-2.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width: ' + pct + '%"></div></div>' +
+                '<div class="text-[10px] text-amber-600 mt-1 font-semibold">Kekurangan: ' + sisaTarget + ' Siswa</div>' +
+              '</div>' +
+            '</div>' +
+            taBannerHtml +
+            actionContent + 
+          '</div>';
         });
       }
 
