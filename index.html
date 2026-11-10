@@ -2422,6 +2422,17 @@ function renderSpmbModule(list) {
       const taList = Object.keys(db).sort().reverse();
       const activeTA = document.getElementById('filterTA')?.value || taList[0]; 
 
+      // LOGIKA OTOMATIS: Hitung Tahun Ajaran berikutnya (misal: 2026-2027 -> 2027-2028)
+      let nextTA = activeTA;
+      if (activeTA && activeTA.includes("-")) {
+        const parts = activeTA.split("-");
+        const startYear = parseInt(parts[0]);
+        const endYear = parseInt(parts[1]);
+        if (!isNaN(startYear) && !isNaN(endYear)) {
+          nextTA = `${startYear + 1}-${endYear + 1}`;
+        }
+      }
+
       const bulanArray = [
         {k:'jan', n:'Januari'}, {k:'feb', n:'Februari'}, {k:'mar', n:'Maret'}, {k:'apr', n:'April'},
         {k:'mei', n:'Mei'}, {k:'jun', n:'Juni'}, {k:'jul', n:'Juli'}, {k:'ags', n:'Agustus'},
@@ -2452,11 +2463,19 @@ function renderSpmbModule(list) {
           const pct = target > 0 ? Math.min(Math.round((totDaftarUlang / target) * 100), 100) : 0;
           const sisaTarget = Math.max(0, target - totDaftarUlang);
 
-          // Peringatan otomatis jika target belum diatur atau di bawah standar (alert ini tetep penting buat validasi)
+          // Peringatan otomatis jika target belum diatur atau di bawah standar
           let warningHtml = '';
           if (isSekolah && target < k9Total) {
             warningHtml = '<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-[11px] flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i><div><strong>Peringatan Target:</strong> Target penerimaan belum memenuhi standar minimal (Total Lulusan Kelas 9 tahun ini: <strong>' + k9Total + ' Siswa</strong>). Harap perbarui target di bawah.</div></div>';
           }
+
+          // BANNER INFO TAHUN AJARAN (Versi ringkas, sebaris tanpa paragraf penjelasan)
+          let taBannerHtml = `
+            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 flex gap-2 items-center shadow-sm">
+              <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+              <strong class="font-bold text-[11px]">Tahun Ajaran SPMB Aktif: ${nextTA}</strong> 
+            </div>
+          `;
 
           // Label Last Updated SPMB
           let updateTag = s.lastUpdateSpmb ? 
@@ -2492,6 +2511,7 @@ function renderSpmbModule(list) {
                 '<div class="text-[10px] text-amber-600 mt-1 font-semibold">Kekurangan: ' + sisaTarget + ' Siswa</div>' +
               '</div>' +
             '</div>' +
+            taBannerHtml +
             actionContent + 
           '</div>';
         });
