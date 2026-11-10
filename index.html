@@ -2419,9 +2419,19 @@ function renderSpmbModule(list) {
       const { role } = parseRoleInfo();
       const isSekolah = role === 'SEKOLAH';
       
-      // Ambil Tahun Ajaran yang sedang aktif di dropdown atas
       const taList = Object.keys(db).sort().reverse();
       const activeTA = document.getElementById('filterTA')?.value || taList[0]; 
+
+      // LOGIKA OTOMATIS: Hitung Tahun Ajaran berikutnya (misal: 2026-2027 -> 2027-2028)
+      let nextTA = "Tahun Ajaran Berikutnya";
+      if (activeTA && activeTA.includes("-")) {
+        const parts = activeTA.split("-");
+        const startYear = parseInt(parts[0]);
+        const endYear = parseInt(parts[1]);
+        if (!isNaN(startYear) && !isNaN(endYear)) {
+          nextTA = `${startYear + 1}-${endYear + 1}`;
+        }
+      }
 
       const bulanArray = [
         {k:'jan', n:'Januari'}, {k:'feb', n:'Februari'}, {k:'mar', n:'Maret'}, {k:'apr', n:'April'},
@@ -2434,7 +2444,8 @@ function renderSpmbModule(list) {
         itemsHtml = '<p class="text-xs text-slate-400 italic">Belum ada data sekolah.</p>';
       } else {
         list.forEach(s => {
-          const k9Total = (s.siswa?.k9L || 0) + (s.siswa?.k9P || 0); // Jumlah lulusan kelas 9
+          // Ambil referensi k9 dari tahun berjalan dengan aman
+          const k9Total = (s.siswa?.k9L || 0) + (s.siswa?.k9P || 0); 
           const spmb = s.spmb || { target: 0, detail: {} };
           const detail = spmb.detail || {};
 
@@ -2452,19 +2463,19 @@ function renderSpmbModule(list) {
           const pct = target > 0 ? Math.min(Math.round((totDaftarUlang / target) * 100), 100) : 0;
           const sisaTarget = Math.max(0, target - totDaftarUlang);
 
-          // Peringatan jika target belum diatur
+          // Peringatan otomatis jika target belum diatur atau di bawah standar
           let warningHtml = '';
           if (isSekolah && target < k9Total) {
-            warningHtml = '<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-[11px] flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i><div><strong>Peringatan Target:</strong> Target penerimaan belum memenuhi standar minimal (Total Kelas 9 saat ini: <strong>' + k9Total + ' Siswa</strong>). Harap perbarui target di bawah.</div></div>';
+            warningHtml = '<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-[11px] flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i><div><strong>Peringatan Target:</strong> Target penerimaan belum memenuhi standar minimal (Total Lulusan Kelas 9 tahun ini: <strong>' + k9Total + ' Siswa</strong>). Harap perbarui target di bawah.</div></div>';
           }
 
-          // Banner Info Tahun Ajaran (Biar Sekolah gak bingung)
+          // BANNER DINAMIS TAHUN AJARAN (Selalu memproyeksikan tahun depannya)
           let taBannerHtml = `
             <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-[11px] flex gap-2 items-start shadow-sm">
               <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
               <div>
-                <strong class="font-bold block text-xs mb-0.5">Tahun Ajaran SPMB Aktif: ${activeTA}</strong> 
-                Data progres pendaftaran di bawah ini tersimpan khusus untuk <strong>Tahun Ajaran ${activeTA}</strong>. ${isSekolah ? 'Jika pendaftaran ini untuk tahun ajaran berikutnya, pastikan Anda mengubah pilihan Tahun Ajaran di bagian atas layar terlebih dahulu.' : ''}
+                <strong class="font-bold block text-xs mb-0.5">Info Progres SPMB: Tahun Ajaran ${nextTA}</strong> 
+                Data pendaftaran di bawah ini adalah progres penerimaan siswa baru untuk <strong>Tahun Ajaran ${nextTA}</strong> guna menggantikan target lulusan Kelas 9 pada tahun berjalan (${activeTA}).
               </div>
             </div>
           `;
