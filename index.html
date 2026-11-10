@@ -398,6 +398,15 @@
           dspGel3: 0, dspSiswa3: 0,
           dspLainnyaList: []
         },
+        spmb: {
+          target: 0,
+          detail: {
+            jan: { p: 0, d: 0, du: 0 }, feb: { p: 0, d: 0, du: 0 }, mar: { p: 0, d: 0, du: 0 },
+            apr: { p: 0, d: 0, du: 0 }, mei: { p: 0, d: 0, du: 0 }, jun: { p: 0, d: 0, du: 0 },
+            jul: { p: 0, d: 0, du: 0 }, ags: { p: 0, d: 0, du: 0 }, sep: { p: 0, d: 0, du: 0 },
+            okt: { p: 0, d: 0, du: 0 }, nov: { p: 0, d: 0, du: 0 }, des: { p: 0, d: 0, du: 0 }
+          }
+        },
         dokumenLaporan: {
           rkas: { status: "Belum Mengisi", notes: "", fileName: "" },
           rpss: { status: "Belum Mengisi", notes: "", fileName: "" },
@@ -687,6 +696,7 @@ function toggleMobileMenu() {
       { id: 'peserta_didik', label: 'Peserta Didik & Rombel', icon: 'users', roles: ['ADMIN', 'PIMPINAN', 'SEKOLAH', 'VIEWER'] },
       { id: 'pendidik_tendik', label: 'Pendidik & Tendik', icon: 'user-check', roles: ['ADMIN', 'PIMPINAN', 'SEKOLAH', 'VIEWER'] },
       { id: 'keuangan', label: 'Data Keuangan', icon: 'wallet', roles: ['ADMIN', 'PIMPINAN', 'SEKOLAH', 'VIEWER'] },
+      { id: 'spmb', label: 'Progres SPMB', icon: 'trending-up', roles: ['ADMIN', 'PIMPINAN', 'SEKOLAH', 'VIEWER'] },
       { id: 'dokumen_tambahan', label: 'Dokumen & Laporan', icon: 'file-text', roles: ['ADMIN', 'PIMPINAN', 'SEKOLAH', 'VIEWER'] },
       { id: 'analisis', label: 'Analisis & Insight', icon: 'bar-chart-3', roles: ['ADMIN', 'PIMPINAN', 'VIEWER'] },
       { id: 'validasi', label: 'Validasi Data', icon: 'check-square', roles: ['ADMIN'] },
@@ -1159,6 +1169,8 @@ function toggleMobileMenu() {
           renderDopLainRows(s.npsn, s.keuangan?.dopLainnyaList || []);
           renderDspLainRows(s.npsn, s.keuangan?.dspLainnyaList || []);
         });
+      } else if (page === 'spmb') {
+        container.innerHTML = renderSpmbModule(list);
       } else if (page === 'dokumen_tambahan') {
         container.innerHTML = renderDokumenTambahanModule(list);
       } else if (page === 'analisis') {
@@ -2399,7 +2411,130 @@ function updateSingleDocStatus(npsn, docKey, status) {
 
       return '<div class="space-y-6"><div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm print:hidden"><div><h3 class="font-bold text-slate-800 text-base">' + titleHeader + '</h3><p class="text-xs text-slate-500">Menampilkan rangkuman profil, keuangan, dan status verifikasi dokumen dari Admin Pusat. Gunakan tombol Excel atau Cetak di atas untuk mengunduh laporan.</p></div></div>' + itemsHtml + '</div>';
     }
+function renderSpmbModule(list) {
+      const { role } = parseRoleInfo();
+      const isSekolah = role === 'SEKOLAH';
+      const bulanArray = [
+        {k:'jan', n:'Januari'}, {k:'feb', n:'Februari'}, {k:'mar', n:'Maret'}, {k:'apr', n:'April'},
+        {k:'mei', n:'Mei'}, {k:'jun', n:'Juni'}, {k:'jul', n:'Juli'}, {k:'ags', n:'Agustus'},
+        {k:'sep', n:'September'}, {k:'okt', n:'Oktober'}, {k:'nov', n:'November'}, {k:'des', n:'Desember'}
+      ];
 
+      let itemsHtml = '';
+      if (list.length === 0) {
+        itemsHtml = '<p class="text-xs text-slate-400 italic">Belum ada data sekolah.</p>';
+      } else {
+        list.forEach(s => {
+          const k9Total = (s.siswa?.k9L || 0) + (s.siswa?.k9P || 0); // Jumlah lulusan kelas 9
+          const spmb = s.spmb || { target: 0, detail: {} };
+          const detail = spmb.detail || {};
+
+          // Hitung total progres berjalan
+          let totDaftarUlang = 0, totPendaftar = 0, totDiterima = 0;
+          bulanArray.forEach(b => {
+            const d = detail[b.k] || { p: 0, d: 0, du: 0 };
+            totPendaftar += (d.p || 0);
+            totDiterima += (d.d || 0);
+            totDaftarUlang += (d.du || 0);
+          });
+
+          // Kalkulasi Progress Bar
+          const target = spmb.target || 0;
+          const pct = target > 0 ? Math.min(Math.round((totDaftarUlang / target) * 100), 100) : 0;
+          const sisaTarget = Math.max(0, target - totDaftarUlang);
+
+          // Peringatan otomatis jika target belum diatur atau di bawah standar
+          let warningHtml = '';
+          if (isSekolah && target < k9Total) {
+            warningHtml = '<div class="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-[11px] flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i><div><strong>Peringatan Target:</strong> Target penerimaan belum memenuhi standar minimal (Total Kelas 9 saat ini: <strong>' + k9Total + ' Siswa</strong>). Harap perbarui target di bawah.</div></div>';
+          }
+
+          let formGrid = '';
+          bulanArray.forEach(b => {
+            const d = detail[b.k] || { p: 0, d: 0, du: 0 };
+            if (isSekolah) {
+              formGrid += '<div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200"><strong class="block text-[11px] text-brand-blue border-b pb-1 mb-1.5">' + b.n + '</strong><div class="space-y-1.5"><div><label class="text-[10px] text-slate-500">Pendaftar</label><input type="number" id="spmb_p_' + b.k + '_' + s.npsn + '" value="' + d.p + '" min="0" class="w-full p-1.5 border rounded-lg text-[11px]"></div><div><label class="text-[10px] text-slate-500">Diterima</label><input type="number" id="spmb_d_' + b.k + '_' + s.npsn + '" value="' + d.d + '" min="0" class="w-full p-1.5 border rounded-lg text-[11px]"></div><div><label class="text-[10px] text-slate-500 font-bold">Daftar Ulang</label><input type="number" id="spmb_du_' + b.k + '_' + s.npsn + '" value="' + d.du + '" min="0" class="w-full p-1.5 border rounded-lg text-[11px] bg-white font-bold text-emerald-700"></div></div></div>';
+            } else {
+              formGrid += '<div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-center"><strong class="block text-[11px] text-brand-blue border-b pb-1 mb-1">' + b.n + '</strong><div class="text-[10px] text-slate-500">Pend: ' + d.p + '</div><div class="text-[10px] text-slate-500">Lolos: ' + d.d + '</div><div class="text-[11px] font-bold text-emerald-700 mt-1 pt-1 border-t">Daftar Ulang:<br>' + d.du + ' Siswa</div></div>';
+            }
+          });
+
+          let actionContent = '';
+          if (isSekolah) {
+            actionContent = '<form onsubmit="saveSpmbData(event, \'' + s.npsn + '\', ' + k9Total + ')" class="space-y-4">' + warningHtml + '<div class="flex items-center gap-3 bg-white p-3.5 border rounded-xl shadow-sm max-w-sm"><label class="font-bold text-slate-700 text-xs w-full">Target SPMB (Min. ' + k9Total + ')</label><input type="number" id="spmb_target_' + s.npsn + '" value="' + target + '" min="' + k9Total + '" required class="p-2 border border-brand-blue rounded-xl text-xs font-black text-center w-24"></div><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">' + formGrid + '</div><div class="text-right pt-3 border-t"><button type="submit" class="bg-brand-blue hover:bg-brand-blueDark text-white font-bold px-5 py-2.5 rounded-xl shadow-sm text-xs">Simpan Progres SPMB</button></div></form>';
+          } else {
+            actionContent = '<div class="flex flex-wrap items-center gap-4 mb-4"><div class="bg-blue-50 px-4 py-2 rounded-xl border border-blue-200"><span class="block text-[10px] text-slate-500">Target Siswa Baru</span><strong class="text-base text-brand-blue">' + target + ' Siswa</strong></div><div class="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200"><span class="block text-[10px] text-slate-500">Total Daftar Ulang (Riil)</span><strong class="text-base text-emerald-700">' + totDaftarUlang + ' Siswa</strong></div></div><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">' + formGrid + '</div>';
+          }
+
+          itemsHtml += '<div class="border border-slate-200/80 rounded-2xl p-5 bg-white shadow-sm space-y-4 mb-4"><div class="flex justify-between items-end border-b pb-3"><div><h4 class="font-bold text-brand-blue text-base">' + s.nama + '</h4><p class="text-xs text-slate-500">Lulusan Kelas 9: ' + k9Total + ' Siswa</p></div><div class="text-right"><div class="text-xs font-bold text-slate-700 mb-1">Capaian: ' + totDaftarUlang + ' / ' + target + ' (' + pct + '%)</div><div class="w-32 h-2.5 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width: ' + pct + '%"></div></div><div class="text-[10px] text-amber-600 mt-1 font-semibold">Kekurangan: ' + sisaTarget + ' Siswa</div></div></div>' + actionContent + '</div>';
+        });
+      }
+
+      return '<div class="bg-slate-50/50 rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4"><div class="border-b pb-3"><h3 class="font-bold text-slate-800 text-base flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-brand-orange"></i> Progres SPMB & Pencapaian Target</h3><p class="text-xs text-slate-500">Pantau progres pendaftar, siswa diterima, dan daftar ulang setiap bulannya (Jan-Des). Target tidak boleh lebih kecil dari jumlah lulusan kelas 9.</p></div>' + itemsHtml + '</div>';
+    }
+
+    function saveSpmbData(e, npsn, minTarget) {
+      e.preventDefault();
+      const taList = Object.keys(db).sort().reverse();
+      const ta = document.getElementById('filterTA')?.value || taList[0];
+      const school = db[ta].find(s => s.npsn === npsn);
+
+      if (school) {
+        const inputTarget = parseInt(document.getElementById('spmb_target_' + npsn).value) || 0;
+        
+        // VALIDASI TARGET: Harus lebih besar atau sama dengan jumlah K9
+        if (inputTarget < minTarget) {
+          alert("VALIDASI GAGAL!\nTarget SPMB (" + inputTarget + ") tidak boleh lebih kecil dari jumlah Kelas 9 (" + minTarget + ").");
+          return;
+        }
+
+        const bulanArray = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'ags', 'sep', 'okt', 'nov', 'des'];
+        
+        if (!school.spmb) school.spmb = { detail: {} };
+        school.spmb.target = inputTarget;
+        
+        let totP = 0, totD = 0, totDU = 0;
+
+        bulanArray.forEach(b => {
+          const p = parseInt(document.getElementById('spmb_p_' + b + '_' + npsn).value) || 0;
+          const d = parseInt(document.getElementById('spmb_d_' + b + '_' + npsn).value) || 0;
+          const du = parseInt(document.getElementById('spmb_du_' + b + '_' + npsn).value) || 0;
+          
+          if (!school.spmb.detail[b]) school.spmb.detail[b] = {};
+          school.spmb.detail[b] = { p: p, d: d, du: du };
+          
+          totP += p;
+          totD += d;
+          totDU += du;
+        });
+
+        markSchoolDataUpdated(school, "Progres SPMB", "spmb", true);
+        
+        const payload = {
+          updatedModule: "spmb",
+          tahunAjaran: ta,
+          npsn: school.npsn,
+          namaSekolah: school.nama,
+          totPendaftar: totP,
+          totDiterima: totD,
+          totDaftarUlang: totDU,
+          spmb: school.spmb
+        };
+
+        fetch(GOOGLE_SHEET_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        }).then(() => {
+          console.log("Data SPMB berhasil dikirim.");
+        });
+
+        saveDB();
+        alert("Data SPMB berhasil disimpan & tervalidasi!");
+        renderPage('spmb');
+      }
+    }
     function exportToExcel() {
       const list = getFilteredData();
       const ta = document.getElementById('filterTA')?.value || "Umum";
