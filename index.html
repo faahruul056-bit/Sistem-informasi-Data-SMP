@@ -1375,21 +1375,25 @@ function toggleMobileMenu() {
             body: JSON.stringify(payload)
           }).then(() => {
             loadingOverlay.querySelector('h3').className = "font-bold text-emerald-600 text-sm";
-            loadingOverlay.querySelector('h3').innerText = "Unggah Berhasil!";
-            loadingOverlay.querySelector('p').innerText = "Memperbarui tampilan dokumen...";
+            loadingOverlay.querySelector('h3').innerText = "Menyinkronkan Tautan...";
+            loadingOverlay.querySelector('p').innerText = "Menarik berkas terbaru dari server...";
             
-            setTimeout(() => {
-              loadingOverlay.classList.add('hidden'); // Sembunyikan animasi loading
-              
-              // Refresh komponen UI (Tabel & Sidebar) secara dinamis tanpa reload browser
-              saveDB();
-              renderSidebar();
-              renderPage('identitas');
-            }, 1500); 
+            // Tarik ulang data dari cloud diam-diam
+            fetch(GOOGLE_SHEET_WEB_APP_URL + "?action=getAllData")
+              .then(res => res.json())
+              .then(resData => {
+                if (resData && resData.status === "success" && resData.db) {
+                  db = resData.db;
+                  localStorage.setItem('sidsa_db_v10', JSON.stringify(db));
+                }
+                loadingOverlay.classList.add('hidden');
+                renderSidebar();
+                renderPage('identitas'); // Refresh instan tanpa reload browser
+              }).catch(() => { window.location.reload(); });
           }).catch(err => {
-            console.error("Gagal upload file:", err);
+            console.error("Gagal:", err);
             loadingOverlay.classList.add('hidden');
-            alert("Gagal mengunggah file. Silakan coba lagi.");
+            alert("Gagal mengunggah. Silakan coba lagi.");
           });
 
           saveDB();
@@ -2067,19 +2071,23 @@ function toggleMobileMenu() {
             body: JSON.stringify(payload)
           }).then(() => {
             loadingOverlay.querySelector('h3').className = "font-bold text-emerald-600 text-sm";
-            loadingOverlay.querySelector('h3').innerText = "Dokumen Tersimpan!";
-            loadingOverlay.querySelector('p').innerText = "Memperbarui tampilan dokumen...";
+            loadingOverlay.querySelector('h3').innerText = "Menyinkronkan Tautan...";
+            loadingOverlay.querySelector('p').innerText = "Menarik berkas terbaru dari server...";
             
-            setTimeout(() => {
-              loadingOverlay.classList.add('hidden'); // Sembunyikan animasi loading
-              
-              // Refresh komponen UI (Tabel & Sidebar) secara dinamis tanpa reload browser
-              saveDB();
-              renderSidebar();
-              renderPage('dokumen_tambahan');
-            }, 1500);
+            // Tarik ulang data dari cloud diam-diam
+            fetch(GOOGLE_SHEET_WEB_APP_URL + "?action=getAllData")
+              .then(res => res.json())
+              .then(resData => {
+                if (resData && resData.status === "success" && resData.db) {
+                  db = resData.db;
+                  localStorage.setItem('sidsa_db_v10', JSON.stringify(db));
+                }
+                loadingOverlay.classList.add('hidden');
+                renderSidebar();
+                renderPage('dokumen_tambahan'); // Refresh instan
+              }).catch(() => { window.location.reload(); });
           }).catch(err => {
-            console.error("Gagal upload file:", err);
+            console.error("Gagal:", err);
             loadingOverlay.classList.add('hidden');
             alert("Gagal mengunggah dokumen. Silakan coba lagi.");
           });
