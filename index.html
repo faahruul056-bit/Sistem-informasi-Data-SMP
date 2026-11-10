@@ -2325,7 +2325,8 @@ function updateSingleDocStatus(npsn, docKey, status) {
         const totalS = (s.siswa.k7L + s.siswa.k7P) + (s.siswa.k8L + s.siswa.k8P) + (s.siswa.k9L + s.siswa.k9P);
         const leg = s.legalitas || {};
 
-        document.getElementById('modalBody').innerHTML = '<div class="space-y-3"><div class="bg-slate-50 p-3.5 rounded-xl border"><span class="font-bold text-brand-blue block mb-1">A. Identitas & Legalitas Sekolah</span><div>• Alamat: <strong>' + (s.alamatSekolah || '-') + '</strong></div><div>• Kepala Sekolah: <strong>' + (s.kepalaSekolah || '-') + '</strong></div><div>• Akreditasi: <strong>' + getAkreditasiText(s.akreditasi) + '</strong></div><div>• SK Pendirian: <strong>' + (leg.skPendirian || '-') + '</strong></div><div>• SK Izin Operasional: <strong>' + (leg.skIzin || '-') + '</strong></div></div><div class="bg-slate-50 p-3.5 rounded-xl border"><span class="font-bold text-brand-blue block mb-1">B. Siswa & Rombel</span><div>• Total Siswa: <strong>' + formatAngka(totalS) + ' Siswa</strong></div></div><div class="bg-slate-50 p-3.5 rounded-xl border"><span class="font-bold text-brand-blue block mb-1">C. SDM Pendidik & Tendik</span><div>• Guru Tetap Yayasan (GTY): <strong>' + formatAngka(s.pendidik.gty || 0) + '</strong> | DPK PNS: <strong>' + formatAngka(s.pendidik.dpkPns || 0) + '</strong></div><div>• Tenaga Kependidikan (Tendik) DPK PNS: <strong>' + formatAngka(s.tendik.dpkPns || 0) + '</strong></div></div></div>';
+        // Ubah teks DPK PNS jadi DPK di bagian C. SDM Pendidik & Tendik
+        document.getElementById('modalBody').innerHTML = '<div class="space-y-3"><div class="bg-slate-50 p-3.5 rounded-xl border"><span class="font-bold text-brand-blue block mb-1">A. Identitas & Legalitas Sekolah</span><div>• Alamat: <strong>' + (s.alamatSekolah || '-') + '</strong></div><div>• Kepala Sekolah: <strong>' + (s.kepalaSekolah || '-') + '</strong></div><div>• Akreditasi: <strong>' + getAkreditasiText(s.akreditasi) + '</strong></div><div>• SK Pendirian: <strong>' + (leg.skPendirian || '-') + '</strong></div><div>• SK Izin Operasional: <strong>' + (leg.skIzin || '-') + '</strong></div></div><div class="bg-slate-50 p-3.5 rounded-xl border"><span class="font-bold text-brand-blue block mb-1">B. Siswa & Rombel</span><div>• Total Siswa: <strong>' + formatAngka(totalS) + ' Siswa</strong></div></div><div class="bg-slate-50 p-3.5 rounded-xl border"><span class="font-bold text-brand-blue block mb-1">C. SDM Pendidik & Tendik</span><div>• Guru Tetap Yayasan (GTY): <strong>' + formatAngka(s.pendidik.gty || 0) + '</strong> | DPK: <strong>' + formatAngka(s.pendidik.dpkPns || 0) + '</strong></div><div>• Tenaga Kependidikan (Tendik) DPK: <strong>' + formatAngka(s.tendik.dpkPns || 0) + '</strong></div></div></div>';
 
         document.getElementById('detailModal').classList.remove('hidden');
         lucide.createIcons();
@@ -2593,7 +2594,6 @@ function renderSpmbModule(list) {
       let csv = "";
       let fileName = "";
 
-      // Cek user lagi buka menu/modul apa
       if (activeTab === 'identitas') {
         fileName = "Rekap_Identitas_Legalitas_TA_" + ta.replace('-', '_');
         csv = "NPSN;Nama Sekolah;Lanud;Alamat Sekolah;Kepala Sekolah;Akreditasi;Tahun Akreditasi;SK Pendirian;SK Izin Operasional\n";
@@ -2619,7 +2619,8 @@ function renderSpmbModule(list) {
         
       } else if (activeTab === 'pendidik_tendik') {
         fileName = "Rekap_SDM_TA_" + ta.replace('-', '_');
-        csv = "NPSN;Nama Sekolah;Lanud;Guru Laki;Guru Pr;Total Guru;GTY;CGTY;Guru DPK PNS;Tendik Laki;Tendik Pr;Total Tendik;KTY;CKTY;Tendik DPK PNS\n";
+        // Header Excel diubah jadi Guru DPK & Tendik DPK
+        csv = "NPSN;Nama Sekolah;Lanud;Guru Laki;Guru Pr;Total Guru;GTY;CGTY;Guru DPK;Tendik Laki;Tendik Pr;Total Tendik;KTY;CKTY;Tendik DPK\n";
         
         list.forEach(s => {
           const totalG = (s.pendidik.L + s.pendidik.P) || 0;
@@ -2644,7 +2645,6 @@ function renderSpmbModule(list) {
         });
         
       } else {
-        // Mode Default untuk Dashboard, Laporan, Validasi, Analisis
         fileName = "Rekap_Global_SiData_TA_" + ta.replace('-', '_');
         csv = "NPSN;Nama Sekolah;Lanud;Alamat Sekolah;Status Validasi;Total Siswa;Total Rombel;Total Guru;Total Tendik;Kepala Sekolah;Akreditasi\n";
         
