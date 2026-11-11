@@ -912,7 +912,7 @@ function toggleMobileMenu() {
         if (s.keuangan?.dopLainnyaList && Array.isArray(s.keuangan.dopLainnyaList)) {
           s.keuangan.dopLainnyaList.forEach(item => {
             const nom = parseFloat(item.nominal) || 0;
-            const jSiswa = parseInt(item.jumlahSiswa) || sSiswa;
+            const jSiswa = parseInt(item.jumlahSiswa) || 0;
             if ((item.tipe || 'Bulanan') === 'Bulanan') dopLainSubtotalBln += (nom * jSiswa);
             else dopLainSubtotalThn += (nom * jSiswa);
           });
@@ -1660,7 +1660,7 @@ function toggleMobileMenu() {
           let totalDopLainnyaThn = 0;
           dopLainnyaList.forEach(item => {
             const nom = parseFloat(item.nominal) || 0;
-            const jSiswa = parseInt(item.jumlahSiswa) || totalSiswaGlobal;
+            const jSiswa = parseInt(item.jumlahSiswa) || 0;
             if ((item.tipe || 'Bulanan') === 'Bulanan') {
               totalDopLainnyaBln += (nom * jSiswa);
             } else {
@@ -1690,9 +1690,17 @@ function toggleMobileMenu() {
           if (dopLainnyaList.length === 0) {
             dopLainItemsHtml = '<div class="text-slate-400 italic">Belum ada penambahan DOP lainnya</div>';
           } else {
-            dopLainnyaList.forEach(item => {
-              dopLainItemsHtml += '<div class="border-b border-slate-200/60 pb-1 last:border-0"><strong>' + (item.keterangan || 'DOP Khusus') + ':</strong> ' + formatRupiah(item.nominal) + ' (' + (item.tipe || 'Bulanan') + ') - ' + formatAngka(item.jumlahSiswa || totalSiswaGlobal) + ' Siswa</div>';
-            });
+            // KODE BARU:
+dopLainnyaList.forEach(item => {
+  let labelKelas = 'Semua Kelas';
+  if (item.kelas === '7') labelKelas = 'Kelas VII';
+  else if (item.kelas === '8') labelKelas = 'Kelas VIII';
+  else if (item.kelas === '9') labelKelas = 'Kelas IX';
+  
+  let jSiswa = parseInt(item.jumlahSiswa) || 0;
+  
+  dopLainItemsHtml += '<div class="border-b border-slate-200/60 pb-1 mb-1.5 last:border-0 last:mb-0"><strong>[' + labelKelas + '] ' + (item.keterangan || 'DOP Khusus') + ':</strong> ' + formatRupiah(item.nominal) + ' (' + (item.tipe || 'Bulanan') + ') - ' + formatAngka(jSiswa) + ' Siswa</div>';
+});
           }
 
           let dspLainItemsHtml = '';
@@ -1760,21 +1768,7 @@ function toggleMobileMenu() {
       const school = db[ta].find(s => s.npsn === npsn);
       if (school && school.keuangan?.dopLainnyaList[index]) {
         school.keuangan.dopLainnyaList[index].kelas = targetKelas;
-
-        const actualK7 = (school.siswa?.k7L || 0) + (school.siswa?.k7P || 0);
-        const actualK8 = (school.siswa?.k8L || 0) + (school.siswa?.k8P || 0);
-        const actualK9 = (school.siswa?.k9L || 0) + (school.siswa?.k9P || 0);
-        const totalSiswaGlobal = actualK7 + actualK8 + actualK9;
-
-        let targetJmlSiswa = totalSiswaGlobal;
-        if (targetKelas === '7') targetJmlSiswa = actualK7;
-        else if (targetKelas === '8') targetJmlSiswa = actualK8;
-        else if (targetKelas === '9') targetJmlSiswa = actualK9;
-
-        school.keuangan.dopLainnyaList[index].jumlahSiswa = targetJmlSiswa;
-
-        const inputJml = document.getElementById(`jmlSiswaDop_${npsn}_${index}`);
-        if (inputJml) inputJml.value = targetJmlSiswa;
+        // Logika perhitungan targetJmlSiswa dihapus agar input tidak terisi otomatis
       }
     }
 
@@ -2371,7 +2365,7 @@ function updateSingleDocStatus(npsn, docKey, status) {
           if (s.keuangan?.dopLainnyaList && Array.isArray(s.keuangan.dopLainnyaList)) {
             s.keuangan.dopLainnyaList.forEach(item => {
               const nom = parseFloat(item.nominal) || 0;
-              const jS = parseInt(item.jumlahSiswa) || totS;
+              const jS = parseInt(item.jumlahSiswa) || 0;
               if ((item.tipe || 'Bulanan') === 'Bulanan') dopLainSubBln += (nom * jS);
               else dopLainSubThn += (nom * jS);
             });
