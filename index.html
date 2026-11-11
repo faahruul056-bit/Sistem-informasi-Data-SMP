@@ -1127,7 +1127,8 @@ function toggleMobileMenu() {
         }
 
         const isSekolah = role === 'SEKOLAH';
-        const myNpsn = npsn;
+        // INI YANG BIKIN ERROR BLANK KEMAREN BRO, UDAH GUA FIX JADI parseRoleInfo().npsn
+        const myNpsn = parseRoleInfo().npsn; 
         const taList = Object.keys(db).sort();
         
         let topCardsHtml = '';
@@ -1139,28 +1140,22 @@ function toggleMobileMenu() {
 
         topCardsHtml += '<div class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5"><div class="p-3.5 bg-amber-50 text-amber-600 rounded-xl"><i data-lucide="users" class="w-6 h-6"></i></div><div><p class="text-xs text-slate-500 font-semibold">Total Peserta Didik</p><h3 class="text-xl font-black text-slate-800">' + formatAngka(stats.totalSiswa) + '</h3></div></div><div class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5"><div class="p-3.5 bg-violet-50 text-violet-600 rounded-xl"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div><div><p class="text-xs text-slate-500 font-semibold">Total Pendidik (Guru)</p><h3 class="text-xl font-black text-slate-800">' + formatAngka(stats.totalPendidik) + '</h3></div></div><div class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5"><div class="p-3.5 bg-cyan-50 text-cyan-600 rounded-xl"><i data-lucide="briefcase" class="w-6 h-6"></i></div><div><p class="text-xs text-slate-500 font-semibold">Total Tendik</p><h3 class="text-xl font-black text-slate-800">' + formatAngka(stats.totalTendik) + '</h3></div></div><div class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3.5"><div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="user-check" class="w-6 h-6"></i></div><div><p class="text-xs text-slate-500 font-semibold">Rasio Guru : Siswa</p><h3 class="text-xl font-black text-slate-800">1 : ' + stats.rasioGuruSiswa + '</h3></div></div>';
 
-        // TENTUKAN GRID COLS BERDASARKAN ROLE
         const gridColsCard = isSekolah ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-5';
         const gridColsChart = isSekolah ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 lg:grid-cols-3';
 
         let chartsHtml = '';
         
-        // GRAFIK 1: PERTUMBUHAN SISWA PER TAHUN AJARAN (Semua Bisa Liat)
         chartsHtml += '<div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm"><h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-brand-blue"></i> Grafik Jumlah Siswa (Per TA)</h4><canvas id="chartSiswaTA" class="max-h-64"></canvas></div>';
         
-        // GRAFIK 2: DISTRIBUSI SEKOLAH (Hanya Admin Pusat)
         if (!isSekolah) {
           chartsHtml += '<div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm"><h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-4 h-4 text-brand-blue"></i> Distribusi Siswa per Sekolah</h4><canvas id="chartSiswa" class="max-h-64"></canvas></div>';
         }
 
-        // GRAFIK 3: KOMPOSISI SDM (Semua Bisa Liat)
         chartsHtml += '<div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm"><h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-brand-orange"></i> Komposisi SDM</h4><canvas id="chartSDM" class="max-h-64"></canvas></div>';
 
         container.innerHTML = '<div class="grid ' + gridColsCard + ' gap-4">' + topCardsHtml + '</div><div class="grid ' + gridColsChart + ' gap-6">' + chartsHtml + '</div><div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden"><div class="p-4.5 bg-slate-50/50 border-b border-slate-200 flex justify-between items-center"><h4 class="font-bold text-slate-800 text-sm">Ringkasan Data Sekolah</h4><span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1 rounded-xl border border-slate-200">Tahun Ajaran ' + selectedTA + '</span></div><div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200"><tr><th class="p-3.5">NPSN & Nama Sekolah</th><th class="p-3.5">Nama Lanud</th><th class="p-3.5 text-center">Total Siswa</th><th class="p-3.5 text-center">Rombel</th><th class="p-3.5 text-center">Pendidik</th><th class="p-3.5 text-center">Status Data & Perubahan</th></tr></thead><tbody class="divide-y divide-slate-100">' + tableRows + '</tbody></table></div></div>';
 
         setTimeout(() => {
-          
-          // --- LOGIKA CHART 1: GARIS (SISWA PER TA) ---
           let labelsTA = [];
           let dataSiswaTA = [];
           
@@ -1201,7 +1196,6 @@ function toggleMobileMenu() {
             });
           }
 
-          // --- LOGIKA CHART 2: BATANG (DISTRIBUSI - KHUSUS ADMIN) ---
           const ctx1 = document.getElementById('chartSiswa');
           if (ctx1 && list.length > 0 && !isSekolah) {
             new Chart(ctx1, {
@@ -1222,7 +1216,6 @@ function toggleMobileMenu() {
             });
           }
 
-          // --- LOGIKA CHART 3: DOUGHNUT (SDM) ---
           const ctx2 = document.getElementById('chartSDM');
           if (ctx2) {
             new Chart(ctx2, {
