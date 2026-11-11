@@ -1691,7 +1691,14 @@ function toggleMobileMenu() {
             dopLainItemsHtml = '<div class="text-slate-400 italic">Belum ada penambahan DOP lainnya</div>';
           } else {
             // KODE BARU:
-dopLainnyaList.forEach(item => {
+const sortedDopLainnya = [...dopLainnyaList].sort((a, b) => {
+  const order = { 'Semua': 0, '7': 1, '8': 2, '9': 3 };
+  const valA = order[a.kelas || 'Semua'] ?? 0;
+  const valB = order[b.kelas || 'Semua'] ?? 0;
+  return valA - valB;
+});
+
+sortedDopLainnya.forEach(item => {
   let labelKelas = 'Semua Kelas';
   if (item.kelas === '7') labelKelas = 'Kelas VII';
   else if (item.kelas === '8') labelKelas = 'Kelas VIII';
