@@ -1618,9 +1618,10 @@ function toggleMobileMenu() {
           const dopUmumThn8 = keu.dopUmumThn8 || 0;
           const dopUmumThn9 = keu.dopUmumThn9 || 0;
 
-          const siswaUmum7 = keu.siswaUmum7 ?? k7Tot;
-          const siswaUmum8 = keu.siswaUmum8 ?? k8Tot;
-          const siswaUmum9 = keu.siswaUmum9 ?? k9Tot;
+          // Mengubah nilai default langsung menjadi 0 jika belum diisi
+          const siswaUmum7 = keu.siswaUmum7 ?? 0;
+          const siswaUmum8 = keu.siswaUmum8 ?? 0;
+          const siswaUmum9 = keu.siswaUmum9 ?? 0;
 
           const dopTniau7 = keu.dopTniau7 || 0;
           const dopTniau8 = keu.dopTniau8 || 0;
@@ -1925,9 +1926,10 @@ function toggleMobileMenu() {
         if (!school.keuangan) school.keuangan = {};
         let dopList = school.keuangan.dopLainnyaList || [];
 
-        const totalAlokasiK7 = u7Input + t7Input + (dopList.filter(i => i.kelas === '7' || i.kelas === 'Semua').reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
-        const totalAlokasiK8 = u8Input + t8Input + (dopList.filter(i => i.kelas === '8' || i.kelas === 'Semua').reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
-        const totalAlokasiK9 = u9Input + t9Input + (dopList.filter(i => i.kelas === '9' || i.kelas === 'Semua').reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
+        // Tambahkan pengecekan i.tipe === 'Bulanan' agar siswa di DOP Tahunan tidak dihitung ganda
+        const totalAlokasiK7 = u7Input + t7Input + (dopList.filter(i => (i.kelas === '7' || i.kelas === 'Semua') && (!i.tipe || i.tipe === 'Bulanan')).reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
+        const totalAlokasiK8 = u8Input + t8Input + (dopList.filter(i => (i.kelas === '8' || i.kelas === 'Semua') && (!i.tipe || i.tipe === 'Bulanan')).reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
+        const totalAlokasiK9 = u9Input + t9Input + (dopList.filter(i => (i.kelas === '9' || i.kelas === 'Semua') && (!i.tipe || i.tipe === 'Bulanan')).reduce((acc, curr) => acc + (parseInt(curr.jumlahSiswa)||0), 0));
 
         if (totalAlokasiK7 !== actualK7) {
           const statusK7 = totalAlokasiK7 > actualK7 ? "MELEBIHI" : "KURANG DARI";
