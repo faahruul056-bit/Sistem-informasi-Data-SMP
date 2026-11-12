@@ -1247,7 +1247,11 @@ function toggleMobileMenu() {
       const newPass = document.getElementById('newPassword').value.trim();
       const confirmPass = document.getElementById('confirmNewPassword').value.trim();
 
-      if (oldPass !== currentSession.pass) {
+      // BARU: Cek password lama dari database user, bukan dari currentSession
+      let usersDB = JSON.parse(localStorage.getItem('sidsa_users_v10')) || [];
+      const userIndex = usersDB.findIndex(u => u.user.toLowerCase() === currentSession.user.toLowerCase());
+
+      if (userIndex === -1 || usersDB[userIndex].pass !== oldPass) {
         alert("Kata Sandi Lama yang Anda masukkan salah!");
         return;
       }
@@ -1262,21 +1266,22 @@ function toggleMobileMenu() {
         return;
       }
 
-      let usersDB = JSON.parse(localStorage.getItem('sidsa_users_v10')) || [];
-      const userIndex = usersDB.findIndex(u => u.user.toLowerCase() === currentSession.user.toLowerCase());
+      // Update password baru ke usersDB lokal
+      usersDB[userIndex].pass = newPass;
+      localStorage.setItem('sidsa_users_v10', JSON.stringify(usersDB));
 
-      if (userIndex !== -1) {
-        usersDB[userIndex].pass = newPass;
-        localStorage.setItem('sidsa_users_v10', JSON.stringify(usersDB));
+      // HAPUS bagian currentSession.pass = newPass; karena kita udah gak nyimpen pass di sesi
+      // Sync perubahan ke Google Sheets
+      syncAccountToSheet(usersDB[userIndex]);
 
-        currentSession.pass = newPass;
-        localStorage.setItem('sidsa_session_v10', JSON.stringify(currentSession));
-
-        syncAccountToSheet(usersDB[userIndex]);
-
-        alert("Kata Sandi Berhasil Diperbarui!");
-        renderPage('dashboard');
-      }
+      alert("Kata Sandi Berhasil Diperbarui!");
+      
+      // Kosongkan form input setelah sukses
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmNewPassword').value = '';
+      
+      renderPage('dashboard');
     }
 
     function renderIdentitasModule(list) {
