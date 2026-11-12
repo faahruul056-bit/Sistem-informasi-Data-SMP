@@ -1493,7 +1493,7 @@ function toggleMobileMenu() {
         school.legalitas.skIzin = document.getElementById('id_sk_izin_' + npsn)?.value || "-";
         school.legalitas.tglSKIzin = document.getElementById('id_tglsk_izin_' + npsn)?.value || "-";
 
-        markSchoolDataUpdated(school, "Identitas & Legalitas", "identitas");
+        markSchoolDataUpdated(school, "Identitas & Legalitas", "identitas", true);
         syncToGoogleSheet(school, ta, "identitas"); 
 
         saveDB();
@@ -1638,7 +1638,7 @@ function toggleMobileMenu() {
         school.tendik.ckty = ckty;
         school.tendik.dpkPns = tDpkPns;
 
-        markSchoolDataUpdated(school, "Pendidik & Tendik", "pendidik");
+        markSchoolDataUpdated(school, "Pendidik & Tendik", "pendidik", true);
         syncToGoogleSheet(school, ta, "pendidik"); 
         saveDB();
         alert("Data Pendidik & Tendik Berhasil Diperbarui!");
@@ -2033,7 +2033,7 @@ sortedDopLainnya.forEach(item => {
         school.keuangan.rpssSumber02 = parseInt(document.getElementById('rpss02_' + npsn)?.value) || 0;
         school.keuangan.rpssSumber03 = parseInt(document.getElementById('rpss03_' + npsn)?.value) || 0;
 
-        markSchoolDataUpdated(school, "Data Keuangan", "keuangan");
+        markSchoolDataUpdated(school, "Data Keuangan", "keuangan", true);
         syncToGoogleSheet(school, ta, "keuangan");
         saveDB();
         
