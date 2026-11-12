@@ -1554,7 +1554,7 @@ function toggleMobileMenu() {
         school.siswa.k9P = parseInt(document.getElementById('k9P_' + npsn).value) || 0;
         school.siswa.r9 = parseInt(document.getElementById('r9_' + npsn).value) || 0;
 
-        markSchoolDataUpdated(school, "Peserta Didik & Rombel", "siswa");
+        markSchoolDataUpdated(school, "Peserta Didik & Rombel", "siswa", true);
         syncToGoogleSheet(school, ta, "siswa"); 
         saveDB();
         alert("Data Peserta Didik Berhasil Diperbarui!");
