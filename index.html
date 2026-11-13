@@ -942,12 +942,27 @@ function toggleMobileMenu() {
         analysisList.push({
           nama: s.nama,
           npsn: s.npsn,
-          dopUmum: dopUmumBlnTotal,
-          dopTni: dopTniBlnTotal,
-          dsp: totalDSP,
           rpss: totalRPSS,
           pendidik: sPendidik,
-          tendik: sTendik
+          tendik: sTendik,
+          // Tarif Satuan DOP Bulanan
+          dopUmum7: s.keuangan?.dopUmum7 || 0,
+          dopUmum8: s.keuangan?.dopUmum8 || 0,
+          dopUmum9: s.keuangan?.dopUmum9 || 0,
+          dopTniau7: s.keuangan?.dopTniau7 || 0,
+          dopTniau8: s.keuangan?.dopTniau8 || 0,
+          dopTniau9: s.keuangan?.dopTniau9 || 0,
+          // Tarif Satuan DOP Tahunan
+          dopUmumThn7: s.keuangan?.dopUmumThn7 || 0,
+          dopUmumThn8: s.keuangan?.dopUmumThn8 || 0,
+          dopUmumThn9: s.keuangan?.dopUmumThn9 || 0,
+          dopTniauThn7: s.keuangan?.dopTniauThn7 || 0,
+          dopTniauThn8: s.keuangan?.dopTniauThn8 || 0,
+          dopTniauThn9: s.keuangan?.dopTniauThn9 || 0,
+          // Tarif Satuan DSP SPMB
+          dspGel1: s.keuangan?.dspGel1 || 0,
+          dspGel2: s.keuangan?.dspGel2 || 0,
+          dspGel3: s.keuangan?.dspGel3 || 0
         });
       });
 
@@ -2218,12 +2233,32 @@ sortedDopLainnya.forEach(item => {
       }
 
       const an = stats.analysisList || [];
-      const compDopUmum = getMinMax(an, 'dopUmum', true);
-      const compDopTni = getMinMax(an, 'dopTni', true);
-      const compDsp = getMinMax(an, 'dsp', true);
+
+      // Helper RPSS, Pendidik, Tendik (Tetap Gelondongan)
       const compRpss = getMinMax(an, 'rpss', true);
       const compPendidik = getMinMax(an, 'pendidik', false);
       const compTendik = getMinMax(an, 'tendik', false);
+
+      // Helper DOP Bulanan
+      const compDU7 = getMinMax(an, 'dopUmum7', true);
+      const compDU8 = getMinMax(an, 'dopUmum8', true);
+      const compDU9 = getMinMax(an, 'dopUmum9', true);
+      const compDT7 = getMinMax(an, 'dopTniau7', true);
+      const compDT8 = getMinMax(an, 'dopTniau8', true);
+      const compDT9 = getMinMax(an, 'dopTniau9', true);
+
+      // Helper DOP Tahunan
+      const compDUT7 = getMinMax(an, 'dopUmumThn7', true);
+      const compDUT8 = getMinMax(an, 'dopUmumThn8', true);
+      const compDUT9 = getMinMax(an, 'dopUmumThn9', true);
+      const compDTT7 = getMinMax(an, 'dopTniauThn7', true);
+      const compDTT8 = getMinMax(an, 'dopTniauThn8', true);
+      const compDTT9 = getMinMax(an, 'dopTniauThn9', true);
+
+      // Helper DSP SPMB
+      const compDsp1 = getMinMax(an, 'dspGel1', true);
+      const compDsp2 = getMinMax(an, 'dspGel2', true);
+      const compDsp3 = getMinMax(an, 'dspGel3', true);
 
       const getPct = (count) => TOTAL_SMP_ANGKASA > 0 ? ((count / TOTAL_SMP_ANGKASA) * 100).toFixed(1) + '%' : '0%';
 
@@ -2236,48 +2271,90 @@ sortedDopLainnya.forEach(item => {
             <span class="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-1 rounded-lg border border-slate-200">Basis: 15 SMP Angkasa</span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
-            <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3">
-              <span class="block text-[11px] font-bold text-emerald-700 mb-1">A (Unggul)</span>
-              <div class="text-xl font-black text-emerald-800">${formatAngka(countA)}</div>
-              <div class="text-[10px] font-semibold text-emerald-600 mt-0.5">${getPct(countA)}</div>
+            <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3"><span class="block text-[11px] font-bold text-emerald-700 mb-1">A (Unggul)</span><div class="text-xl font-black text-emerald-800">${formatAngka(countA)}</div><div class="text-[10px] font-semibold text-emerald-600 mt-0.5">${getPct(countA)}</div></div>
+            <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3"><span class="block text-[11px] font-bold text-brand-blue mb-1">B (Baik)</span><div class="text-xl font-black text-blue-800">${formatAngka(countB)}</div><div class="text-[10px] font-semibold text-blue-600 mt-0.5">${getPct(countB)}</div></div>
+            <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-3"><span class="block text-[11px] font-bold text-amber-700 mb-1">C (Cukup Baik)</span><div class="text-xl font-black text-amber-800">${formatAngka(countC)}</div><div class="text-[10px] font-semibold text-amber-600 mt-0.5">${getPct(countC)}</div></div>
+            <div class="bg-rose-50/50 border border-rose-200 rounded-xl p-3"><span class="block text-[11px] font-bold text-rose-700 mb-1">Tidak Terakreditasi</span><div class="text-xl font-black text-rose-800">${formatAngka(countTT)}</div><div class="text-[10px] font-semibold text-rose-600 mt-0.5">${getPct(countTT)}</div></div>
+            <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-3"><span class="block text-[11px] font-bold text-slate-700 mb-1">Belum Mengisi</span><div class="text-xl font-black text-slate-800">${formatAngka(countBelum)}</div><div class="text-[10px] font-semibold text-slate-500 mt-0.5">${getPct(countBelum)}</div></div>
+          </div>
+        </div>
+      `;
+
+      const komparasiHtml = `
+        <div class="border-t pt-4 space-y-3">
+          <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4 text-brand-blue"></i> Komparasi Tertinggi & Terendah per Komponen Sekolah</h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            
+            <!-- 1. DOP Bulanan Umum -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <span class="font-bold text-slate-700 block border-b pb-1">DOP Bulanan Umum</span>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VII</strong><div class="text-emerald-700 leading-tight">▲ ${compDU7.max}</div><div class="text-rose-600 leading-tight">▼ ${compDU7.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VIII</strong><div class="text-emerald-700 leading-tight">▲ ${compDU8.max}</div><div class="text-rose-600 leading-tight">▼ ${compDU8.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas IX</strong><div class="text-emerald-700 leading-tight">▲ ${compDU9.max}</div><div class="text-rose-600 leading-tight">▼ ${compDU9.min}</div></div>
             </div>
-            <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3">
-              <span class="block text-[11px] font-bold text-brand-blue mb-1">B (Baik)</span>
-              <div class="text-xl font-black text-blue-800">${formatAngka(countB)}</div>
-              <div class="text-[10px] font-semibold text-blue-600 mt-0.5">${getPct(countB)}</div>
+
+            <!-- 2. DOP Bulanan TNI-AU -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <span class="font-bold text-slate-700 block border-b pb-1">DOP Bulanan Anak TNI-AU</span>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VII</strong><div class="text-emerald-700 leading-tight">▲ ${compDT7.max}</div><div class="text-rose-600 leading-tight">▼ ${compDT7.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VIII</strong><div class="text-emerald-700 leading-tight">▲ ${compDT8.max}</div><div class="text-rose-600 leading-tight">▼ ${compDT8.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas IX</strong><div class="text-emerald-700 leading-tight">▲ ${compDT9.max}</div><div class="text-rose-600 leading-tight">▼ ${compDT9.min}</div></div>
             </div>
-            <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-3">
-              <span class="block text-[11px] font-bold text-amber-700 mb-1">C (Cukup Baik)</span>
-              <div class="text-xl font-black text-amber-800">${formatAngka(countC)}</div>
-              <div class="text-[10px] font-semibold text-amber-600 mt-0.5">${getPct(countC)}</div>
+
+            <!-- 3. DOP Tahunan Umum -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <span class="font-bold text-slate-700 block border-b pb-1">DOP Tahunan Umum</span>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VII</strong><div class="text-emerald-700 leading-tight">▲ ${compDUT7.max}</div><div class="text-rose-600 leading-tight">▼ ${compDUT7.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VIII</strong><div class="text-emerald-700 leading-tight">▲ ${compDUT8.max}</div><div class="text-rose-600 leading-tight">▼ ${compDUT8.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas IX</strong><div class="text-emerald-700 leading-tight">▲ ${compDUT9.max}</div><div class="text-rose-600 leading-tight">▼ ${compDUT9.min}</div></div>
             </div>
-            <div class="bg-rose-50/50 border border-rose-200 rounded-xl p-3">
-              <span class="block text-[11px] font-bold text-rose-700 mb-1">Tidak Terakreditasi</span>
-              <div class="text-xl font-black text-rose-800">${formatAngka(countTT)}</div>
-              <div class="text-[10px] font-semibold text-rose-600 mt-0.5">${getPct(countTT)}</div>
+
+            <!-- 4. DOP Tahunan TNI-AU -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <span class="font-bold text-slate-700 block border-b pb-1">DOP Tahunan Anak TNI-AU</span>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VII</strong><div class="text-emerald-700 leading-tight">▲ ${compDTT7.max}</div><div class="text-rose-600 leading-tight">▼ ${compDTT7.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas VIII</strong><div class="text-emerald-700 leading-tight">▲ ${compDTT8.max}</div><div class="text-rose-600 leading-tight">▼ ${compDTT8.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Kelas IX</strong><div class="text-emerald-700 leading-tight">▲ ${compDTT9.max}</div><div class="text-rose-600 leading-tight">▼ ${compDTT9.min}</div></div>
             </div>
-            <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-3">
-              <span class="block text-[11px] font-bold text-slate-700 mb-1">Belum Mengisi</span>
-              <div class="text-xl font-black text-slate-800">${formatAngka(countBelum)}</div>
-              <div class="text-[10px] font-semibold text-slate-500 mt-0.5">${getPct(countBelum)}</div>
+
+            <!-- 5. Tarif DSP SPMB -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+              <span class="font-bold text-slate-700 block border-b pb-1">Tarif DSP SPMB</span>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Gelombang I</strong><div class="text-emerald-700 leading-tight">▲ ${compDsp1.max}</div><div class="text-rose-600 leading-tight">▼ ${compDsp1.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Gelombang II</strong><div class="text-emerald-700 leading-tight">▲ ${compDsp2.max}</div><div class="text-rose-600 leading-tight">▼ ${compDsp2.min}</div></div>
+              <div class="text-[10px] space-y-0.5"><strong class="text-slate-600 block">Gelombang III</strong><div class="text-emerald-700 leading-tight">▲ ${compDsp3.max}</div><div class="text-rose-600 leading-tight">▼ ${compDsp3.min}</div></div>
             </div>
+
+            <!-- 6. Sumber Dana RPSS -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+              <span class="font-bold text-slate-700 block border-b pb-1">Total Dana RPSS</span>
+              <div class="text-[11px] text-emerald-700 mt-2"><strong>Tertinggi:</strong><br>${compRpss.max}</div>
+              <div class="text-[11px] text-rose-600 mt-2"><strong>Terendah:</strong><br>${compRpss.min}</div>
+            </div>
+
+            <!-- 7. Jumlah Pendidik -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+              <span class="font-bold text-slate-700 block border-b pb-1">Total Pendidik (Guru)</span>
+              <div class="text-[11px] text-emerald-700 mt-2"><strong>Tertinggi:</strong><br>${compPendidik.max}</div>
+              <div class="text-[11px] text-rose-600 mt-2"><strong>Terendah:</strong><br>${compPendidik.min}</div>
+            </div>
+
+            <!-- 8. Jumlah Tendik -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+              <span class="font-bold text-slate-700 block border-b pb-1">Total Tendik</span>
+              <div class="text-[11px] text-emerald-700 mt-2"><strong>Tertinggi:</strong><br>${compTendik.max}</div>
+              <div class="text-[11px] text-rose-600 mt-2"><strong>Terendah:</strong><br>${compTendik.min}</div>
+            </div>
+
           </div>
         </div>
       `;
 
       return '<div class="space-y-6"><div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-5"><div class="flex items-center justify-between border-b pb-3.5"><div><h3 class="font-bold text-slate-800 text-base flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-brand-orange"></i> Analisis & Insight Eksekutif</h3><p class="text-xs text-slate-500">Perbandingan komparatif otomatis antar sekolah di lingkungan Yasarini.</p></div><span class="text-xs font-bold bg-amber-100 text-amber-900 px-3.5 py-1.5 rounded-full border border-amber-200">Executive View</span></div><div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs"><div class="bg-blue-50/70 border border-blue-200 p-4 rounded-2xl space-y-1"><span class="text-slate-500 font-semibold block">Total Proyeksi Penerimaan/Thn</span><h4 class="text-lg font-black text-brand-blue">' + formatRupiah(stats.grandTotalPenerimaanThn) + '</h4></div><div class="bg-emerald-50/70 border border-emerald-200 p-4 rounded-2xl space-y-1"><span class="text-slate-500 font-semibold block">Kepatuhan Berkas Laporan</span><h4 class="text-lg font-black text-emerald-700">' + formatAngka(complianceRate) + '% Terverifikasi</h4></div><div class="bg-amber-50/70 border border-amber-200 p-4 rounded-2xl space-y-1"><span class="text-slate-500 font-semibold block">Rata-Rata Siswa / Rombel</span><h4 class="text-lg font-black text-amber-700">' + avgSiswaPerRombel + ' Siswa</h4></div><div class="bg-purple-50/70 border border-purple-200 p-4 rounded-2xl space-y-1"><span class="text-slate-500 font-semibold block">Total Sekolah Terdata</span><h4 class="text-lg font-black text-purple-700">' + formatAngka(stats.totalSekolah) + ' Sekolah</h4></div></div>' +
-      
       akreditasiPanel + 
-      
-      '<div class="border-t pt-4 space-y-3"><h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4 text-brand-blue"></i> Komparasi Tertinggi & Terendah per Komponen Sekolah</h4>' +
-      '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">' +
-        '<div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2"><span class="font-bold text-slate-700 block border-b pb-1">DOP Bulanan Umum</span><div class="text-[11px] text-emerald-700"><strong>Tertinggi:</strong> ' + compDopUmum.max + '</div><div class="text-[11px] text-rose-600"><strong>Terendah:</strong> ' + compDopUmum.min + '</div></div>' +
-        '<div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2"><span class="font-bold text-slate-700 block border-b pb-1">DOP Bulanan Anak TNI-AU</span><div class="text-[11px] text-emerald-700"><strong>Tertinggi:</strong> ' + compDopTni.max + '</div><div class="text-[11px] text-rose-600"><strong>Terendah:</strong> ' + compDopTni.min + '</div></div>' +
-        '<div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2"><span class="font-bold text-slate-700 block border-b pb-1">Penerimaan DSP SPMB</span><div class="text-[11px] text-emerald-700"><strong>Tertinggi:</strong> ' + compDsp.max + '</div><div class="text-[11px] text-rose-600"><strong>Terendah:</strong> ' + compDsp.min + '</div></div>' +
-        '<div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2"><span class="font-bold text-slate-700 block border-b pb-1">Sumber Dana RPSS</span><div class="text-[11px] text-emerald-700"><strong>Tertinggi:</strong> ' + compRpss.max + '</div><div class="text-[11px] text-rose-600"><strong>Terendah:</strong> ' + compRpss.min + '</div></div>' +
-        '<div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2"><span class="font-bold text-slate-700 block border-b pb-1">Jumlah Pendidik (Guru)</span><div class="text-[11px] text-emerald-700"><strong>Tertinggi:</strong> ' + compPendidik.max + '</div><div class="text-[11px] text-rose-600"><strong>Terendah:</strong> ' + compPendidik.min + '</div></div>' +
-        '<div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2"><span class="font-bold text-slate-700 block border-b pb-1">Jumlah Tenaga Kependidikan</span><div class="text-[11px] text-emerald-700"><strong>Tertinggi:</strong> ' + compTendik.max + '</div><div class="text-[11px] text-rose-600"><strong>Terendah:</strong> ' + compTendik.min + '</div></div>' +
-      '</div></div></div></div>';
+      komparasiHtml + 
+      '</div></div>';
     }
     function renderValidasiModule(list) {
       let itemsHtml = '';
