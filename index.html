@@ -2193,7 +2193,8 @@ sortedDopLainnya.forEach(item => {
 
     function renderAnalisisModule(list, stats) {
       let totalValidDocs = 0;
-      let totalDocSlots = TOTAL_SMP_ANGKASA * 9;
+      // Ubah pengali jadi 13 (10 Dokumen Laporan + 3 Dokumen Legalitas)
+      let totalDocSlots = TOTAL_SMP_ANGKASA * 13; 
       
       let countA = 0;
       let countB = 0;
@@ -2202,11 +2203,18 @@ sortedDopLainnya.forEach(item => {
       let countBelum = 0;
 
       list.forEach(s => {
-        // Hitung dokumen valid
+        // Hitung dokumen valid dari modul Dokumen & Laporan
         if (s.dokumenLaporan) {
           Object.values(s.dokumenLaporan).forEach(d => {
             if (d.status === 'Valid') totalValidDocs++;
           });
+        }
+        
+        // TAMBAHAN: Hitung dokumen valid dari modul Identitas & Legalitas
+        if (s.legalitas) {
+          if (s.legalitas.statusAkreditasi === 'Valid') totalValidDocs++;
+          if (s.legalitas.statusSKPendirian === 'Valid') totalValidDocs++;
+          if (s.legalitas.statusSKIzin === 'Valid') totalValidDocs++;
         }
         
         // Hitung status akreditasi
@@ -2216,7 +2224,7 @@ sortedDopLainnya.forEach(item => {
         else if (s.akreditasi === 'TT' || s.akreditasi === 'D') countTT++;
         else countBelum++;
       });
-
+      
       // Hitung selisih sekolah yang belum mendaftar sama sekali dari total kuota 15 SMP Angkasa
       const unregisteredSchools = Math.max(0, TOTAL_SMP_ANGKASA - list.length);
       countBelum += unregisteredSchools; 
