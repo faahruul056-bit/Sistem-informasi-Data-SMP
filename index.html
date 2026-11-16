@@ -882,6 +882,10 @@ function toggleMobileMenu() {
       let totalPendidik = 0;
       let totalGuruRasio = 0; // <--- LU KELUPAAN MASUKIN BARIS INI BRO
       let totalTendik = 0;
+      let totalGTY = 0;
+      let totalCGTY = 0;
+      let totalDPK = 0;
+      let totalGPW = 0;
       let totalDOPBulan = 0;
       let totalDOPTahunRutin = 0;
       let totalDSPPenerimaan = 0;
@@ -937,6 +941,10 @@ function toggleMobileMenu() {
         totalPendidik += sPendidik; // Total Pendidik dashboard (termasuk GPW)
         totalGuruRasio += (sPendidik - sGpw); // Total Guru dikurangi GPW buat rasio
         totalTendik += sTendik;
+        totalGTY += (s.pendidik.gty || 0);
+        totalCGTY += (s.pendidik.cgty || 0);
+        totalDPK += (s.pendidik.dpkPns || 0);
+        totalGPW += (s.pendidik.gpw || 0);
 
         totalDOPBulan += (dopUmumBlnTotal + dopTniBlnTotal + dopLainSubtotalBln);
         totalDOPTahunRutin += (dopThn + dopLainSubtotalThn);
@@ -972,9 +980,10 @@ function toggleMobileMenu() {
       const grandTotalPenerimaanThn = (totalDOPBulan * 12) + totalDOPTahunRutin + totalDSPPenerimaan;
 
       return {
-        totalSekolah, totalSiswa, totalRombel, totalPendidik, totalTendik, totalDOPBulan,
-        totalDOPTahunRutin, totalDSPPenerimaan, grandTotalPenerimaanThn,
-        rasioGuruSiswa: totalGuruRasio > 0 ? (totalSiswa / totalGuruRasio).toFixed(1) : 0, // Ubah di sini
+        totalSekolah, totalSiswa, totalRombel, totalPendidik, totalTendik,
+        totalGTY, totalCGTY, totalDPK, totalGPW,
+        totalDOPBulan, totalDOPTahunRutin, totalDSPPenerimaan, grandTotalPenerimaanThn,
+        rasioGuruSiswa: totalGuruRasio > 0 ? (totalSiswa / totalGuruRasio).toFixed(1) : 0,
         analysisList
       };
     }
@@ -1223,16 +1232,49 @@ function toggleMobileMenu() {
 
           const ctx2 = document.getElementById('chartSDM');
           if (ctx2) {
+            const dataGuru = [stats.totalGTY, stats.totalCGTY, stats.totalDPK, stats.totalGPW];
+            const totalSemuaGuru = dataGuru.reduce((acc, val) => acc + val, 0);
+            const hitungPersen = (val) => totalSemuaGuru > 0 ? ((val / totalSemuaGuru) * 100).toFixed(1) : '0.0';
+
             new Chart(ctx2, {
               type: 'doughnut',
               data: {
-                labels: ['Total Pendidik (Guru)', 'Total Tenaga Kependidikan'],
+                labels: [
+                  `GTY (${hitungPersen(stats.totalGTY)}%)`,
+                  `CGTY (${hitungPersen(stats.totalCGTY)}%)`,
+                  `DPK (${hitungPersen(stats.totalDPK)}%)`,
+                  `GPW (${hitungPersen(stats.totalGPW)}%)`
+                ],
                 datasets: [{
-                  data: [stats.totalPendidik, stats.totalTendik],
-                  backgroundColor: ['#ffab00', '#0052cc']
+                  data: dataGuru,
+                  backgroundColor: ['#0052cc', '#10b981', '#ffab00', '#8b5cf6'],
+                  borderWidth: 2,
+                  borderColor: '#ffffff'
                 }]
               },
-              options: { responsive: true, maintainAspectRatio: false }
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      boxWidth: 12,
+                      font: { size: 11, weight: 'bold' }
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        const namaKategori = ['GTY', 'CGTY', 'DPK', 'GPW'];
+                        const jumlah = context.raw || 0;
+                        const persen = hitungPersen(jumlah);
+                        return ` ${namaKategori[context.dataIndex]}: ${formatAngka(jumlah)} Guru (${persen}%)`;
+                      }
+                    }
+                  }
+                }
+              }
             });
           }
         }, 50);
