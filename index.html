@@ -652,6 +652,21 @@ function toggleMobileMenu() {
             }
             if (resData.akun && Array.isArray(resData.akun) && resData.akun.length > 0) {
               localStorage.setItem('sidsa_users_v10', JSON.stringify(resData.akun));
+
+              // Otomatis tarik Nama Lanud dari Data_Akun jika di Data_Identitas masih '-' atau kosong
+              Object.keys(db).forEach(ta => {
+                if (Array.isArray(db[ta])) {
+                  db[ta].forEach(s => {
+                    if (!s.cabang || s.cabang === '-') {
+                      const akunMatch = resData.akun.find(a => (a.npsn || a.user) == s.npsn);
+                      if (akunMatch && akunMatch.cabang && akunMatch.cabang !== '-') {
+                        s.cabang = akunMatch.cabang;
+                      }
+                    }
+                  });
+                }
+              });
+              localStorage.setItem('sidsa_db_v10', JSON.stringify(db));
             }
           }
         })
