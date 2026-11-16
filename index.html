@@ -1264,11 +1264,14 @@ container.innerHTML = '<div class="grid grid-cols-2 ' + gridColClass + ' gap-4">
                   },
                   tooltip: {
                     callbacks: {
-                      label: function(context) {
+                      title: function(context) {
                         const namaKategori = ['GTY', 'CGTY', 'DPK', 'GPW'];
+                        return namaKategori[context[0].dataIndex];
+                      },
+                      label: function(context) {
                         const jumlah = context.raw || 0;
                         const persen = hitungPersen(jumlah);
-                        return ` ${namaKategori[context.dataIndex]}: ${formatAngka(jumlah)} Guru (${persen}%)`;
+                        return ` Jumlah: ${formatAngka(jumlah)} Guru (${persen}%)`;
                       }
                     }
                   }
